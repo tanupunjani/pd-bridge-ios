@@ -29,4 +29,6 @@ HealthKit and real-time fall detection remain disabled. Personal Team signing is
 
 See the [engineering case study](https://tanupunjani.github.io/pd-bridge-case-study/), [Privacy Policy](https://tanupunjani.github.io/pd-bridge-case-study/privacy.html), and [support page](https://tanupunjani.github.io/pd-bridge-case-study/support.html).
 
+This public repository starts from a reviewed source snapshot. Earlier internal study and deployment history remains in a separate private local repository and is intentionally not published.
+
 No open-source license has been granted. Public visibility alone does not grant permission to reuse this code or assets.

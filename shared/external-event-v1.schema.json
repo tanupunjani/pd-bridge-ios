@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pd-bridge.invalid/schemas/external-event-v1.json",
+  "title": "Unconfirmed historical external event candidate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "source", "externalEventId", "eventType", "occurredAt", "reportedCount", "sourceLabel", "confirmationStatus"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "source": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "externalEventId": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "eventType": { "const": "historical-fall-count" },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "reportedCount": { "type": "integer", "minimum": 1 },
+    "sourceLabel": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "confirmationStatus": { "const": "pending-user-review" }
+  }
+}

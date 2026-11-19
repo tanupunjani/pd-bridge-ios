@@ -1,0 +1,36 @@
+name: iOS source checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release-build:
+    runs-on: xcode-27
+    timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks
+      - name: Check iPhone-only packaging
+        working-directory: native
+        run: python3 project/verify_iphone_only_release.py
+      - name: Native contract checks
+        run: |
+          swiftc native/ios/Observation.swift native/shared/FictionalWatchEvent.swift native/ios/ObservationService.swift native/ios/ProtectedObservationVault.swift native/ios/ObservationBackup.swift native/ios/NativeStrings.swift native/watch/FictionalWatchOutbox.swift native/ios/Tests/main.swift -o "$RUNNER_TEMP/pdbridge-native-smoke"
+          "$RUNNER_TEMP/pdbridge-native-smoke"
+          node native/ios/Tests/scaffold-check.mjs
+          node native/ios/Tests/project-check.mjs
+      - name: Unsigned iPhone Release build
+        working-directory: native
+        run: xcodebuild -project PDBridgeNative.xcodeproj -scheme PDBridge -configuration Release -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build

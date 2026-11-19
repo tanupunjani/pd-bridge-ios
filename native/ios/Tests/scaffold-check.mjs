@@ -1,0 +1,34 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+
+const root = new URL("../", import.meta.url);
+const vault = readFileSync(new URL("ProtectedObservationVault.swift", root), "utf8");
+const health = readFileSync(new URL("HealthKitFallSource.swift", root), "utf8");
+const backup = readFileSync(new URL("ObservationBackup.swift", root), "utf8");
+const schema = JSON.parse(readFileSync(new URL("../../../shared/external-event-v1.schema.json", import.meta.url), "utf8"));
+
+assert.match(vault, /AES\.GCM\.seal/);
+assert.match(vault, /AES\.GCM\.open/);
+assert.match(vault, /kSecAttrAccessibleWhenUnlockedThisDeviceOnly/);
+assert.match(vault, /\.completeFileProtection/);
+assert.match(vault, /isExcludedFromBackup = true/);
+assert.match(vault, /key\(createIfMissing: false\)/);
+assert.match(vault, /key\(createIfMissing: !fileExists\)/);
+assert.match(vault, /if fileExists \{ _ = try loadArchive\(\) \}/);
+assert.match(vault, /processedSourceKeys/);
+assert.match(vault, /SecRandomCopyBytes/);
+assert.match(vault, /catch \{\s+throw VaultError\.invalidArchive/);
+assert.match(vault, /deletion-pending-v1\.marker/);
+assert.match(vault, /deleteContentKey\(\)[\s\S]*deleteArchive[\s\S]*writeCompletedTombstone[\s\S]*removeFileIntent[\s\S]*removeKeychainIntent/);
+assert.match(vault, /kSecAttrAccessibleWhenUnlockedThisDeviceOnly/);
+assert.match(vault, /if case \.watchDelivery\(let occurredAt\) = intent, occurredAt <= deletionDate/);
+assert.match(vault, /if try hasPendingDeletionIntent\(\) \{ throw VaultError\.deletionPending \}/);
+assert.match(backup, /310_000/);
+assert.match(backup, /authenticating: context/);
+assert.match(backup, /recordConflict/);
+assert.match(health, /numberOfTimesFallen/);
+assert.match(health, /throw HealthImportError\.disabled/);
+assert.doesNotMatch(health, /\.requestAuthorization\s*\(|\bHKSampleQuery\s*\(|\bHKAnchoredObjectQuery\s*\(/);
+assert.equal(schema.properties.confirmationStatus.const, "pending-user-review");
+assert.equal(schema.properties.eventType.const, "historical-fall-count");
+console.log("Inactive native scaffold checks: passed");

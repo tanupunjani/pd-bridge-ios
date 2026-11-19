@@ -1,0 +1,486 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		076424D772DBC07F23BE8154 /* PDBridgeWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE362F3BB84DFB130DD90528 /* PDBridgeWatchApp.swift */; };
+		34141C9AC3F53212F819834C /* DiaryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB9425ACB8E5306D4B878E89 /* DiaryModel.swift */; };
+		3DE172A4D56DDA70D203AE91 /* ObservationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C1088239A0B03970945D65 /* ObservationService.swift */; };
+		4C93AC93D068E68C27753A0F /* FictionalWatchEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38042839714E72387E6C4734 /* FictionalWatchEvent.swift */; };
+		A10000000000000000000010 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000012 /* Assets.xcassets */; };
+		A10000000000000000000011 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000013 /* PrivacyInfo.xcprivacy */; };
+		656B39A53E1EC294176A178A /* ProtectedObservationVault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4C7F512C33DD8F4511D7A7 /* ProtectedObservationVault.swift */; };
+		664BD634B5E8BEF3E79385E9 /* WatchTransfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7294EC9F010CD8E389E5F83C /* WatchTransfer.swift */; };
+		6DE4FE3917C70FB1EDDD8F84 /* PDBridgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93C04B1529339944DF17ED6D /* PDBridgeApp.swift */; };
+		B80000000000000000000001 /* ObservationBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80000000000000000000001 /* ObservationBackup.swift */; };
+		B80000000000000000000002 /* FictionalWatchOutbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80000000000000000000002 /* FictionalWatchOutbox.swift */; };
+		B80000000000000000000003 /* EntitlementGatedFallAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80000000000000000000003 /* EntitlementGatedFallAdapter.swift */; };
+		B80000000000000000000004 /* NativeStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80000000000000000000004 /* NativeStrings.swift */; };
+		BAB8C517CBEDA3C5987D95D4 /* FictionalWatchEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38042839714E72387E6C4734 /* FictionalWatchEvent.swift */; };
+		BEA098E79C7C8BCABA3FDC73 /* WatchInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CCF85F8CA0F734932929C8 /* WatchInbox.swift */; };
+		C587E2E0779B3B4A99CFAB24 /* Observation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94D8DF3D995DBDC820A3EE88 /* Observation.swift */; };
+		F24D5AC091EAFC2F7DB3372C /* NativeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA51D9544A717E1C64C3D9A /* NativeViews.swift */; };
+		A10000000000000000000001 /* PDBridgeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* PDBridgeUITests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A1000000000000000000000A /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = D68DE905D3F2B7ACF7875AAD /* Project object */; proxyType = 1; remoteGlobalIDString = 6B5A4F618AD070955957AAE2; remoteInfo = PDBridge; };
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		13C1088239A0B03970945D65 /* ObservationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservationService.swift; sourceTree = "<group>"; };
+		1C06A2C7383B1472513B6CF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		A10000000000000000000012 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A10000000000000000000013 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		38042839714E72387E6C4734 /* FictionalWatchEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FictionalWatchEvent.swift; sourceTree = "<group>"; };
+		538085D2A2772C39E187A582 /* PDBridgeWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PDBridgeWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6DA51D9544A717E1C64C3D9A /* NativeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeViews.swift; sourceTree = "<group>"; };
+		7294EC9F010CD8E389E5F83C /* WatchTransfer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchTransfer.swift; sourceTree = "<group>"; };
+		8A4C7F512C33DD8F4511D7A7 /* ProtectedObservationVault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtectedObservationVault.swift; sourceTree = "<group>"; };
+		9320F9B0A6426046FAD22BCE /* PDBridge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PDBridge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		93C04B1529339944DF17ED6D /* PDBridgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDBridgeApp.swift; sourceTree = "<group>"; };
+		94D8DF3D995DBDC820A3EE88 /* Observation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observation.swift; sourceTree = "<group>"; };
+		AE362F3BB84DFB130DD90528 /* PDBridgeWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDBridgeWatchApp.swift; sourceTree = "<group>"; };
+		B8D09145B38577B0B4EA5638 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		C0CCF85F8CA0F734932929C8 /* WatchInbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchInbox.swift; sourceTree = "<group>"; };
+		C80000000000000000000001 /* ObservationBackup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservationBackup.swift; sourceTree = "<group>"; };
+		C80000000000000000000002 /* FictionalWatchOutbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FictionalWatchOutbox.swift; sourceTree = "<group>"; };
+		C80000000000000000000003 /* EntitlementGatedFallAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntitlementGatedFallAdapter.swift; sourceTree = "<group>"; };
+		C80000000000000000000004 /* NativeStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeStrings.swift; sourceTree = "<group>"; };
+		DB9425ACB8E5306D4B878E89 /* DiaryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaryModel.swift; sourceTree = "<group>"; };
+		A10000000000000000000002 /* PDBridgeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDBridgeUITests.swift; sourceTree = "<group>"; };
+		A10000000000000000000003 /* PDBridgeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PDBridgeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		3868F742A0B5978D8FBE0F1F /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				94D8DF3D995DBDC820A3EE88 /* Observation.swift */,
+				13C1088239A0B03970945D65 /* ObservationService.swift */,
+				8A4C7F512C33DD8F4511D7A7 /* ProtectedObservationVault.swift */,
+				C80000000000000000000001 /* ObservationBackup.swift */,
+				C80000000000000000000004 /* NativeStrings.swift */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
+		5D5DB2EA26A14B6AC26A1DAA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9320F9B0A6426046FAD22BCE /* PDBridge.app */,
+				538085D2A2772C39E187A582 /* PDBridgeWatch.app */,
+				A10000000000000000000003 /* PDBridgeUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8EFFD1B095F976CDE83ED5A6 /* watch */ = {
+			isa = PBXGroup;
+			children = (
+				B8D09145B38577B0B4EA5638 /* Info.plist */,
+				AE362F3BB84DFB130DD90528 /* PDBridgeWatchApp.swift */,
+				7294EC9F010CD8E389E5F83C /* WatchTransfer.swift */,
+				C80000000000000000000002 /* FictionalWatchOutbox.swift */,
+				C80000000000000000000003 /* EntitlementGatedFallAdapter.swift */,
+			);
+			path = watch;
+			sourceTree = "<group>";
+		};
+		B310C60D26DAAE1FD069B20D /* shared */ = {
+			isa = PBXGroup;
+			children = (
+				38042839714E72387E6C4734 /* FictionalWatchEvent.swift */,
+			);
+			path = shared;
+			sourceTree = "<group>";
+		};
+		DFDA2054F2828AC1897D661F /* App */ = {
+			isa = PBXGroup;
+			children = (
+				DB9425ACB8E5306D4B878E89 /* DiaryModel.swift */,
+				1C06A2C7383B1472513B6CF8 /* Info.plist */,
+				A10000000000000000000012 /* Assets.xcassets */,
+				A10000000000000000000013 /* PrivacyInfo.xcprivacy */,
+				6DA51D9544A717E1C64C3D9A /* NativeViews.swift */,
+				93C04B1529339944DF17ED6D /* PDBridgeApp.swift */,
+				C0CCF85F8CA0F734932929C8 /* WatchInbox.swift */,
+			);
+			name = App;
+			path = ios/App;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000004 /* UITests */ = {isa = PBXGroup; children = (A10000000000000000000002 /* PDBridgeUITests.swift */,); path = ios/UITests; sourceTree = "<group>"; };
+		E7D5FF69B0E058A67760D49A = {
+			isa = PBXGroup;
+			children = (
+				DFDA2054F2828AC1897D661F /* App */,
+				A10000000000000000000004 /* UITests */,
+				3868F742A0B5978D8FBE0F1F /* ios */,
+				B310C60D26DAAE1FD069B20D /* shared */,
+				8EFFD1B095F976CDE83ED5A6 /* watch */,
+				5D5DB2EA26A14B6AC26A1DAA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1B5F360740E270474E56EBF3 /* PDBridgeWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 83299270B52D9473C68F3C6F /* Build configuration list for PBXNativeTarget "PDBridgeWatch" */;
+			buildPhases = (
+				1F6405FFBD0A093003737ED7 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PDBridgeWatch;
+			packageProductDependencies = (
+			);
+			productName = PDBridgeWatch;
+			productReference = 538085D2A2772C39E187A582 /* PDBridgeWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+		6B5A4F618AD070955957AAE2 /* PDBridge */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 54EF97E619343EFCCE9AF29F /* Build configuration list for PBXNativeTarget "PDBridge" */;
+			buildPhases = (
+				577CDAF8296F6771379C1848 /* Sources */,
+				A10000000000000000000014 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PDBridge;
+			packageProductDependencies = (
+			);
+			productName = PDBridge;
+			productReference = 9320F9B0A6426046FAD22BCE /* PDBridge.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A10000000000000000000005 /* PDBridgeUITests */ = {isa = PBXNativeTarget; buildConfigurationList = A10000000000000000000008 /* Build configuration list for PBXNativeTarget "PDBridgeUITests" */; buildPhases = (A10000000000000000000006 /* Sources */,); buildRules = (); dependencies = (A10000000000000000000009 /* PBXTargetDependency */,); name = PDBridgeUITests; productName = PDBridgeUITests; productReference = A10000000000000000000003 /* PDBridgeUITests.xctest */; productType = "com.apple.product-type.bundle.ui-testing"; };
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D68DE905D3F2B7ACF7875AAD /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					A10000000000000000000005 = { ProvisioningStyle = Automatic; };
+					1B5F360740E270474E56EBF3 = {
+						ProvisioningStyle = Automatic;
+					};
+					6B5A4F618AD070955957AAE2 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = B699E05325718DDA7268DF51 /* Build configuration list for PBXProject "PDBridgeNative" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = E7D5FF69B0E058A67760D49A;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 5D5DB2EA26A14B6AC26A1DAA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6B5A4F618AD070955957AAE2 /* PDBridge */,
+				1B5F360740E270474E56EBF3 /* PDBridgeWatch */,
+				A10000000000000000000005 /* PDBridgeUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1F6405FFBD0A093003737ED7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4C93AC93D068E68C27753A0F /* FictionalWatchEvent.swift in Sources */,
+				076424D772DBC07F23BE8154 /* PDBridgeWatchApp.swift in Sources */,
+				664BD634B5E8BEF3E79385E9 /* WatchTransfer.swift in Sources */,
+				B80000000000000000000002 /* FictionalWatchOutbox.swift in Sources */,
+				B80000000000000000000003 /* EntitlementGatedFallAdapter.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		577CDAF8296F6771379C1848 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				34141C9AC3F53212F819834C /* DiaryModel.swift in Sources */,
+				BAB8C517CBEDA3C5987D95D4 /* FictionalWatchEvent.swift in Sources */,
+				F24D5AC091EAFC2F7DB3372C /* NativeViews.swift in Sources */,
+				C587E2E0779B3B4A99CFAB24 /* Observation.swift in Sources */,
+				3DE172A4D56DDA70D203AE91 /* ObservationService.swift in Sources */,
+				6DE4FE3917C70FB1EDDD8F84 /* PDBridgeApp.swift in Sources */,
+				656B39A53E1EC294176A178A /* ProtectedObservationVault.swift in Sources */,
+				BEA098E79C7C8BCABA3FDC73 /* WatchInbox.swift in Sources */,
+				B80000000000000000000001 /* ObservationBackup.swift in Sources */,
+				B80000000000000000000004 /* NativeStrings.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000006 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000001 /* PDBridgeUITests.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A10000000000000000000014 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000010 /* Assets.xcassets in Resources */,
+				A10000000000000000000011 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A10000000000000000000009 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = 6B5A4F618AD070955957AAE2 /* PDBridge */; targetProxy = A1000000000000000000000A /* PBXContainerItemProxy */; };
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1D83E9EDE72B662227AAA2B5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		63653A94C9B638DACEDB3A61 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APP_DISPLAY_NAME = "PD Bridge Fictional";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = ios/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.pdbridge.private;
+				PRIVACY_POLICY_URL = "https://tanupunjani.github.io/pd-bridge-case-study/privacy.html";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG PD_BRIDGE_SYNTHETIC_BUILD";
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		774DCB3F323F81DF78C94781 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APP_DISPLAY_NAME = "PD Bridge";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = ios/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.pdbridge.private;
+				PRIVACY_POLICY_URL = "https://tanupunjani.github.io/pd-bridge-case-study/privacy.html";
+				MARKETING_VERSION = 1.0.0;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		A1F38052E4DB7A579913159B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = watch/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = org.pdbridge.private.watchkitapp;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Release;
+		};
+		C1191CA4F69D03748F2A96CB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = watch/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = org.pdbridge.private.watchkitapp;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Debug;
+		};
+		E6984E04896BF777D99E42DB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		A1000000000000000000000B /* Debug */ = {isa = XCBuildConfiguration; buildSettings = { CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; PRODUCT_BUNDLE_IDENTIFIER = org.pdbridge.private.uitests; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; TEST_TARGET_NAME = PDBridge; }; name = Debug; };
+		A1000000000000000000000C /* Release */ = {isa = XCBuildConfiguration; buildSettings = { CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; PRODUCT_BUNDLE_IDENTIFIER = org.pdbridge.private.uitests; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; TEST_TARGET_NAME = PDBridge; }; name = Release; };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		54EF97E619343EFCCE9AF29F /* Build configuration list for PBXNativeTarget "PDBridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				63653A94C9B638DACEDB3A61 /* Debug */,
+				774DCB3F323F81DF78C94781 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		83299270B52D9473C68F3C6F /* Build configuration list for PBXNativeTarget "PDBridgeWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C1191CA4F69D03748F2A96CB /* Debug */,
+				A1F38052E4DB7A579913159B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B699E05325718DDA7268DF51 /* Build configuration list for PBXProject "PDBridgeNative" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E6984E04896BF777D99E42DB /* Debug */,
+				1D83E9EDE72B662227AAA2B5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A10000000000000000000008 /* Build configuration list for PBXNativeTarget "PDBridgeUITests" */ = {isa = XCConfigurationList; buildConfigurations = (A1000000000000000000000B /* Debug */, A1000000000000000000000C /* Release */,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Debug; };
+/* End XCConfigurationList section */
+	};
+	rootObject = D68DE905D3F2B7ACF7875AAD /* Project object */;
+}

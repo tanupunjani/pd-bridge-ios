@@ -6,8 +6,44 @@ final class PDBridgeUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = launchApp()
+        let start = app.buttons["welcome.getStarted"]
+        if start.waitForExistence(timeout: 2) { start.tap() }
         XCTAssertTrue(app.buttons["Write a note"].waitForExistence(timeout: 15))
         attachScreen("home")
+    }
+
+    func testWelcomeAppearsOnlyUntilStarted() throws {
+        app.terminate()
+        app = launchApp(extraArguments: ["-pdbridge.welcomeCompleted.v1", "NO"])
+        let start = app.buttons["welcome.getStarted"]
+        XCTAssertTrue(start.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Welcome to PD Bridge"].exists)
+        start.tap()
+        XCTAssertTrue(app.buttons["Write a note"].waitForExistence(timeout: 5))
+        app.terminate()
+        app = launchApp()
+        XCTAssertFalse(app.buttons["welcome.getStarted"].exists)
+        XCTAssertTrue(app.buttons["Write a note"].waitForExistence(timeout: 5))
+    }
+
+    func testWelcomeThenManualEventReachesAppointment() throws {
+        app.terminate()
+        app = launchApp(extraArguments: ["-pdbridge.welcomeCompleted.v1", "NO"])
+        let start = app.buttons["welcome.getStarted"]
+        XCTAssertTrue(start.waitForExistence(timeout: 5))
+        start.tap()
+        let fall = app.buttons["Fall"]
+        scrollUntilHittable(fall, in: app.scrollViews.firstMatch)
+        fall.tap()
+        app.buttons["tab.History"].tap()
+        let include = app.switches.matching(
+            NSPredicate(format: "identifier CONTAINS 'history.includeInAppointment'")
+        ).firstMatch
+        XCTAssertTrue(include.waitForExistence(timeout: 5))
+        include.tap()
+        app.buttons["tab.Appointment"].tap()
+        XCTAssertTrue(app.staticTexts["Selected entries: 1"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Fictional fall test event."].exists)
     }
 
     func testFictionalDiaryToAppointmentAndUndo() throws {
@@ -439,10 +475,11 @@ final class PDBridgeUITests: XCTestCase {
 
     private func launchApp(
         accessibilityTextSize: Bool = false,
-        languageCode: String = "en"
+        languageCode: String = "en",
+        extraArguments: [String] = []
     ) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["--pdbridge-uitest", "-pdbridge.language", languageCode]
+        app.launchArguments = ["--pdbridge-uitest", "-pdbridge.language", languageCode] + extraArguments
         if accessibilityTextSize {
             app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
         }

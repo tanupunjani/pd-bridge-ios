@@ -115,6 +115,38 @@ private struct NoticeBanner: View {
     }
 }
 
+struct WelcomeView: View {
+    let onStart: () -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                Image("BrandMark")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 88, height: 88)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .accessibilityHidden(true)
+                Text("Welcome to PD Bridge")
+                    .font(.largeTitle.bold())
+                    .accessibilityAddTraits(.isHeader)
+                Text("A private place to keep observations in your own words and prepare a factual list for an appointment.")
+                    .font(.body)
+                Text("Your saved diary stays encrypted on this iPhone. PD Bridge does not diagnose, detect falls automatically, or monitor emergencies.")
+                    .font(.body)
+                Button("Get started", action: onStart)
+                    .buttonStyle(ActionStyle(prominent: true))
+                    .accessibilityIdentifier("welcome.getStarted")
+            }
+            .frame(maxWidth: 560, alignment: .leading)
+            .frame(maxWidth: .infinity)
+            .padding(24)
+        }
+        .foregroundColor(Palette.ink)
+        .background(Palette.page.ignoresSafeArea())
+    }
+}
+
 struct MainTabs: View {
     @State private var showSettings = false
     @State private var selectedTab = 0
@@ -323,7 +355,7 @@ private struct HomeView: View {
                         .accessibilityIdentifier("home.talkDemo")
                         .accessibilityHint("Optional local text-only demonstration using fixed fictional choices. No microphone or AI is used.")
                     }
-                    Button("Caregiver or emergency help") { activeSheet = .help }
+                    Button("Call a caregiver") { activeSheet = .help }
                         .buttonStyle(ActionStyle())
                         .accessibilityIdentifier("home.help")
                         .accessibilityHint("Enter caregiver details, review them, then choose Open Phone yourself if you want to continue. PD Bridge does not monitor emergencies or call anyone automatically.")

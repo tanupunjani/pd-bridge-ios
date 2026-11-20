@@ -154,7 +154,7 @@ assert.match(model, /requestAuthorization\(options: \[\.alert, \.sound\]\)/,
   "Notifications are requested only after a user enables the reminder");
 assert.match(phone, /Daily medication reminder/);
 assert.match(phone, /does not give dosing advice or confirm a dose/);
-assert.match(phone, /Caregiver or emergency help/);
+assert.match(phone, /Button\("Call a caregiver"\)/);
 assert.match(phone, /does not monitor emergencies[\s\S]*local emergency services directly/);
 assert.match(phone, /TextField\("Caregiver name", text: \$caregiverName\)/);
 assert.match(phone, /TextField\("Phone number", text: \$caregiverPhone\)/);

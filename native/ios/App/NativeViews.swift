@@ -1065,6 +1065,7 @@ private struct AppointmentView: View {
             .frame(maxWidth: .infinity)
             .padding(.bottom, dynamicTypeSize.isAccessibilitySize ? 176 : 64)
         }
+        .accessibilityIdentifier("appointment.scrollView")
         .background(Palette.page)
         .navigationTitle(NativeStrings.text("Appointment", languageCode: languageCode))
         .navigationBarTitleDisplayMode(.inline)
@@ -1303,6 +1304,7 @@ private struct SettingsView: View {
             .frame(maxWidth: .infinity)
             .padding(.bottom, 40)
         }
+        .accessibilityIdentifier("settings.scrollView")
         .scrollDismissesKeyboard(.interactively)
         .background(Palette.page)
         .navigationTitle(NativeStrings.text("Settings", languageCode: languageCode))

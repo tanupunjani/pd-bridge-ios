@@ -2,6 +2,7 @@ import XCTest
 
 final class PDBridgeUITests: XCTestCase {
     private var app: XCUIApplication!
+    private var uiTestRunID = UUID()
 
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -52,7 +53,7 @@ final class PDBridgeUITests: XCTestCase {
         let corrected = correction + original
 
         app.buttons["Write a note"].tap()
-        let editor = app.textViews["Fictional note text"]
+        let editor = noteEditor()
         XCTAssertTrue(editor.waitForExistence(timeout: 5))
         editor.tap()
         editor.typeText(original)
@@ -69,7 +70,7 @@ final class PDBridgeUITests: XCTestCase {
         search.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: "kitchen doorway".count))
 
         app.buttons["Edit"].firstMatch.tap()
-        let correctionEditor = app.textViews["Fictional note text"]
+        let correctionEditor = noteEditor()
         XCTAssertTrue(correctionEditor.waitForExistence(timeout: 5))
         correctionEditor.tap()
         correctionEditor.typeText(correction)
@@ -116,18 +117,46 @@ final class PDBridgeUITests: XCTestCase {
         editor.typeText(demonstration)
         app.scrollViews.buttons["Save"].firstMatch.tap()
 
+        // The app deliberately keeps success feedback visible and accessible.
+        // Relaunch the same isolated test vault before taking marketing images,
+        // so screenshots show the app's steady state instead of a transient toast.
+        app.terminate()
+        app = launchApp(testRunID: uiTestRunID)
         app.buttons["tab.History"].tap()
         XCTAssertTrue(app.staticTexts[demonstration].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts["Note saved on this iPhone."].exists)
         attachScreen("release-history")
         app.switches["Include in appointment"].tap()
 
+        app.terminate()
+        app = launchApp(testRunID: uiTestRunID)
         app.buttons["tab.Appointment"].tap()
         XCTAssertTrue(app.staticTexts["Selected entries: 1"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts[demonstration].exists)
+        XCTAssertFalse(app.staticTexts["Added to appointment report."].exists)
+        let appointmentScroll = app.scrollViews["appointment.scrollView"]
+        XCTAssertTrue(appointmentScroll.waitForExistence(timeout: 5))
+        let reportText = appointmentScroll.staticTexts[demonstration]
+        let appointmentTab = app.buttons["tab.Appointment"]
+        scrollUntilFullyVisible(reportText, in: appointmentScroll, above: appointmentTab)
+        appointmentScroll.swipeUp(velocity: .slow)
+        XCTAssertTrue(reportText.isHittable)
         attachScreen("release-appointment")
 
         app.buttons["Settings"].tap()
-        XCTAssertTrue(app.staticTexts["Encrypted backup"].waitForExistence(timeout: 5))
+        let privacyLink = app.descendants(matching: .any)
+            .matching(identifier: "settings.privacyPolicyLink").firstMatch
+        XCTAssertTrue(privacyLink.waitForExistence(timeout: 5))
+        let settingsScroll = app.scrollViews["settings.scrollView"]
+        XCTAssertTrue(settingsScroll.waitForExistence(timeout: 5))
+        for _ in 0..<8 where !privacyLink.isHittable ||
+            privacyLink.frame.minY < settingsScroll.frame.minY ||
+            privacyLink.frame.maxY > settingsScroll.frame.maxY {
+            settingsScroll.swipeUp(velocity: .slow)
+        }
+        XCTAssertTrue(privacyLink.isHittable)
+        XCTAssertGreaterThanOrEqual(privacyLink.frame.minY, settingsScroll.frame.minY)
+        XCTAssertLessThanOrEqual(privacyLink.frame.maxY, settingsScroll.frame.maxY)
         attachScreen("release-settings")
     }
 
@@ -213,7 +242,7 @@ final class PDBridgeUITests: XCTestCase {
 
         // Add only fictional text to this run's isolated encrypted vault.
         writeNote.tap()
-        let editor = app.textViews["Fictional note text"]
+        let editor = noteEditor()
         editor.tap()
         editor.typeText("Fictional scroll check note.")
         XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 3))
@@ -395,7 +424,7 @@ final class PDBridgeUITests: XCTestCase {
         XCTAssertTrue(app.buttons["home.writeNote"].waitForExistence(timeout: 15))
         app.buttons["home.writeNote"].tap()
         let original = "فرضی نوٹ — چال دھیمی تھی۔"
-        let editor = app.textViews["Fictional note text"]
+        let editor = noteEditor()
         XCTAssertTrue(editor.waitForExistence(timeout: 5))
         editor.tap()
         editor.typeText(original)
@@ -422,7 +451,7 @@ final class PDBridgeUITests: XCTestCase {
 
     private func exerciseUnicodeNote(_ original: String, screenshotName: String) throws {
         app.buttons["home.writeNote"].tap()
-        let editor = app.textViews["Fictional note text"]
+        let editor = noteEditor()
         XCTAssertTrue(editor.waitForExistence(timeout: 5))
         editor.tap()
         editor.typeText(original)
@@ -442,7 +471,7 @@ final class PDBridgeUITests: XCTestCase {
         search.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: original.utf16.count))
 
         app.buttons["Edit"].firstMatch.tap()
-        let correctionEditor = app.textViews["Fictional note text"]
+        let correctionEditor = noteEditor()
         correctionEditor.tap()
         correctionEditor.press(forDuration: 1.0)
         let correctionSelectAll = app.descendants(matching: .any).matching(
@@ -476,16 +505,24 @@ final class PDBridgeUITests: XCTestCase {
     private func launchApp(
         accessibilityTextSize: Bool = false,
         languageCode: String = "en",
-        extraArguments: [String] = []
+        extraArguments: [String] = [],
+        testRunID: UUID? = nil
     ) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["--pdbridge-uitest", "-pdbridge.language", languageCode] + extraArguments
         if accessibilityTextSize {
             app.launchArguments += ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
         }
-        app.launchEnvironment["PDBRIDGE_UI_TEST_RUN_ID"] = UUID().uuidString
+        uiTestRunID = testRunID ?? UUID()
+        app.launchEnvironment["PDBRIDGE_UI_TEST_RUN_ID"] = uiTestRunID.uuidString
         app.launch()
         return app
+    }
+
+    private func noteEditor() -> XCUIElement {
+        app.textViews.matching(NSPredicate(
+            format: "label == %@ OR label == %@", "Note text", "Fictional note text"
+        )).firstMatch
     }
 
     private func scrollUntilHittable(_ element: XCUIElement, in scroll: XCUIElement) {

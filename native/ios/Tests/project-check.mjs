@@ -33,6 +33,8 @@ assert.match(project, /APP_DISPLAY_NAME = "PD Bridge"/);
 assert.match(project, /MARKETING_VERSION = 1\.0\.0/);
 assert.match(project, /DEVELOPMENT_TEAM = ""/,
   "Release signing has no Personal Team selected pending organization enrollment");
+assert.doesNotMatch(project, /DEVELOPMENT_TEAM\s*=\s*;/,
+  "Every development team setting must remain valid when account identifiers are removed");
 assert.match(projectYAML, /resources:[\s\S]*ios\/App\/Assets\.xcassets[\s\S]*ios\/App\/PrivacyInfo\.xcprivacy/);
 assert.doesNotMatch(projectYAML, /target: PDBridgeWatch[\s\S]*embed: true/);
 assert.match(project, /ObservationBackup\.swift in Sources/);

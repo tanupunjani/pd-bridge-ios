@@ -1,15 +1,12 @@
 name: iOS source checks
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   release-build:
     runs-on: xcode-27
@@ -27,7 +24,7 @@ jobs:
         run: python3 project/verify_iphone_only_release.py
       - name: Native contract checks
         run: |
-          swiftc native/ios/Observation.swift native/shared/FictionalWatchEvent.swift native/ios/ObservationService.swift native/ios/ProtectedObservationVault.swift native/ios/ObservationBackup.swift native/ios/NativeStrings.swift native/watch/FictionalWatchOutbox.swift native/ios/Tests/main.swift -o "$RUNNER_TEMP/pdbridge-native-smoke"
+          swiftc native/ios/Observation.swift native/ios/ObservationAnalytics.swift native/shared/FictionalWatchEvent.swift native/ios/ObservationService.swift native/ios/ProtectedObservationVault.swift native/ios/ObservationBackup.swift native/ios/NativeStrings.swift native/watch/FictionalWatchOutbox.swift native/ios/Tests/main.swift -o "$RUNNER_TEMP/pdbridge-native-smoke"
           "$RUNNER_TEMP/pdbridge-native-smoke"
           node native/ios/Tests/scaffold-check.mjs
           node native/ios/Tests/project-check.mjs

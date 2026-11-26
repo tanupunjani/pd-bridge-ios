@@ -83,8 +83,8 @@ enum VaultError: Error {
 
 // Platform-neutral record. External input remains pending until the person confirms it.
 struct Observation: Codable, Identifiable, Equatable {
-    enum Kind: String, Codable { case note, fall, nearFall, freezing, movement }
-    enum Origin: String, Codable { case manual, appleHealth, fictionalWatch }
+    enum Kind: String, Codable, CaseIterable { case note, fall, nearFall, freezing, tremor, movement, otherSymptom }
+    enum Origin: String, Codable, CaseIterable { case manual, appleHealth, fictionalWatch }
     enum Confirmation: String, Codable { case pendingReview, userConfirmed }
 
     let id: UUID
@@ -200,7 +200,7 @@ enum ObservationTimeLabels {
 /// The Appointment screen and print/export output use the same eligibility and
 /// ordering rules so displayed counts cannot drift from the generated report.
 enum AppointmentReport {
-    private static let kinds: [Observation.Kind] = [.fall, .nearFall, .freezing, .movement, .note]
+    private static let kinds: [Observation.Kind] = [.fall, .nearFall, .freezing, .tremor, .movement, .otherSymptom, .note]
 
     static func orderedEntries(from observations: [Observation]) -> [Observation] {
         observations.sorted { lhs, rhs in

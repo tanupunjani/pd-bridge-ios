@@ -12,6 +12,7 @@
 		3DE172A4D56DDA70D203AE91 /* ObservationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C1088239A0B03970945D65 /* ObservationService.swift */; };
 		4C93AC93D068E68C27753A0F /* FictionalWatchEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38042839714E72387E6C4734 /* FictionalWatchEvent.swift */; };
 		A10000000000000000000010 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000012 /* Assets.xcassets */; };
+		B80000000000000000000010 /* Watch Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B80000000000000000000012 /* Watch Assets.xcassets */; };
 		A10000000000000000000011 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000013 /* PrivacyInfo.xcprivacy */; };
 		656B39A53E1EC294176A178A /* ProtectedObservationVault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4C7F512C33DD8F4511D7A7 /* ProtectedObservationVault.swift */; };
 		664BD634B5E8BEF3E79385E9 /* WatchTransfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7294EC9F010CD8E389E5F83C /* WatchTransfer.swift */; };
@@ -20,10 +21,12 @@
 		B80000000000000000000002 /* FictionalWatchOutbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80000000000000000000002 /* FictionalWatchOutbox.swift */; };
 		B80000000000000000000003 /* EntitlementGatedFallAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80000000000000000000003 /* EntitlementGatedFallAdapter.swift */; };
 		B80000000000000000000004 /* NativeStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80000000000000000000004 /* NativeStrings.swift */; };
+		B80000000000000000000005 /* ObservationAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80000000000000000000005 /* ObservationAnalytics.swift */; };
 		BAB8C517CBEDA3C5987D95D4 /* FictionalWatchEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38042839714E72387E6C4734 /* FictionalWatchEvent.swift */; };
 		BEA098E79C7C8BCABA3FDC73 /* WatchInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0CCF85F8CA0F734932929C8 /* WatchInbox.swift */; };
 		C587E2E0779B3B4A99CFAB24 /* Observation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94D8DF3D995DBDC820A3EE88 /* Observation.swift */; };
 		F24D5AC091EAFC2F7DB3372C /* NativeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA51D9544A717E1C64C3D9A /* NativeViews.swift */; };
+		B80000000000000000000006 /* PDDesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C80000000000000000000006 /* PDDesignSystem.swift */; };
 		A10000000000000000000001 /* PDBridgeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* PDBridgeUITests.swift */; };
 /* End PBXBuildFile section */
 
@@ -35,10 +38,12 @@
 		13C1088239A0B03970945D65 /* ObservationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservationService.swift; sourceTree = "<group>"; };
 		1C06A2C7383B1472513B6CF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		A10000000000000000000012 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B80000000000000000000012 /* Watch Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A10000000000000000000013 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		38042839714E72387E6C4734 /* FictionalWatchEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FictionalWatchEvent.swift; sourceTree = "<group>"; };
 		538085D2A2772C39E187A582 /* PDBridgeWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PDBridgeWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6DA51D9544A717E1C64C3D9A /* NativeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeViews.swift; sourceTree = "<group>"; };
+		C80000000000000000000006 /* PDDesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDDesignSystem.swift; sourceTree = "<group>"; };
 		7294EC9F010CD8E389E5F83C /* WatchTransfer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchTransfer.swift; sourceTree = "<group>"; };
 		8A4C7F512C33DD8F4511D7A7 /* ProtectedObservationVault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtectedObservationVault.swift; sourceTree = "<group>"; };
 		9320F9B0A6426046FAD22BCE /* PDBridge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PDBridge.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -51,6 +56,7 @@
 		C80000000000000000000002 /* FictionalWatchOutbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FictionalWatchOutbox.swift; sourceTree = "<group>"; };
 		C80000000000000000000003 /* EntitlementGatedFallAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntitlementGatedFallAdapter.swift; sourceTree = "<group>"; };
 		C80000000000000000000004 /* NativeStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeStrings.swift; sourceTree = "<group>"; };
+		C80000000000000000000005 /* ObservationAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservationAnalytics.swift; sourceTree = "<group>"; };
 		DB9425ACB8E5306D4B878E89 /* DiaryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaryModel.swift; sourceTree = "<group>"; };
 		A10000000000000000000002 /* PDBridgeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDBridgeUITests.swift; sourceTree = "<group>"; };
 		A10000000000000000000003 /* PDBridgeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PDBridgeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -65,6 +71,7 @@
 				8A4C7F512C33DD8F4511D7A7 /* ProtectedObservationVault.swift */,
 				C80000000000000000000001 /* ObservationBackup.swift */,
 				C80000000000000000000004 /* NativeStrings.swift */,
+				C80000000000000000000005 /* ObservationAnalytics.swift */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -83,6 +90,7 @@
 			isa = PBXGroup;
 			children = (
 				B8D09145B38577B0B4EA5638 /* Info.plist */,
+				B80000000000000000000012 /* Watch Assets.xcassets */,
 				AE362F3BB84DFB130DD90528 /* PDBridgeWatchApp.swift */,
 				7294EC9F010CD8E389E5F83C /* WatchTransfer.swift */,
 				C80000000000000000000002 /* FictionalWatchOutbox.swift */,
@@ -107,6 +115,7 @@
 				A10000000000000000000012 /* Assets.xcassets */,
 				A10000000000000000000013 /* PrivacyInfo.xcprivacy */,
 				6DA51D9544A717E1C64C3D9A /* NativeViews.swift */,
+				C80000000000000000000006 /* PDDesignSystem.swift */,
 				93C04B1529339944DF17ED6D /* PDBridgeApp.swift */,
 				C0CCF85F8CA0F734932929C8 /* WatchInbox.swift */,
 			);
@@ -135,6 +144,7 @@
 			buildConfigurationList = 83299270B52D9473C68F3C6F /* Build configuration list for PBXNativeTarget "PDBridgeWatch" */;
 			buildPhases = (
 				1F6405FFBD0A093003737ED7 /* Sources */,
+				B80000000000000000000014 /* Watch Resources */,
 			);
 			buildRules = (
 			);
@@ -225,6 +235,7 @@
 				34141C9AC3F53212F819834C /* DiaryModel.swift in Sources */,
 				BAB8C517CBEDA3C5987D95D4 /* FictionalWatchEvent.swift in Sources */,
 				F24D5AC091EAFC2F7DB3372C /* NativeViews.swift in Sources */,
+				B80000000000000000000006 /* PDDesignSystem.swift in Sources */,
 				C587E2E0779B3B4A99CFAB24 /* Observation.swift in Sources */,
 				3DE172A4D56DDA70D203AE91 /* ObservationService.swift in Sources */,
 				6DE4FE3917C70FB1EDDD8F84 /* PDBridgeApp.swift in Sources */,
@@ -232,6 +243,7 @@
 				BEA098E79C7C8BCABA3FDC73 /* WatchInbox.swift in Sources */,
 				B80000000000000000000001 /* ObservationBackup.swift in Sources */,
 				B80000000000000000000004 /* NativeStrings.swift in Sources */,
+				B80000000000000000000005 /* ObservationAnalytics.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -245,6 +257,14 @@
 			files = (
 				A10000000000000000000010 /* Assets.xcassets in Resources */,
 				A10000000000000000000011 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B80000000000000000000014 /* Watch Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B80000000000000000000010 /* Watch Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -320,7 +340,7 @@
 				APP_DISPLAY_NAME = "PD Bridge Fictional";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = ;
 				INFOPLIST_FILE = ios/App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -372,7 +392,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = ;
 				INFOPLIST_FILE = watch/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.pdbridge.private.watchkitapp;
 				SDKROOT = watchos;
@@ -447,7 +467,7 @@
 			};
 			name = Debug;
 		};
-		A1000000000000000000000B /* Debug */ = {isa = XCBuildConfiguration; buildSettings = { CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; PRODUCT_BUNDLE_IDENTIFIER = org.pdbridge.private.uitests; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; TEST_TARGET_NAME = PDBridge; }; name = Debug; };
+		A1000000000000000000000B /* Debug */ = {isa = XCBuildConfiguration; buildSettings = { CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = ; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; PRODUCT_BUNDLE_IDENTIFIER = org.pdbridge.private.uitests; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; TEST_TARGET_NAME = PDBridge; }; name = Debug; };
 		A1000000000000000000000C /* Release */ = {isa = XCBuildConfiguration; buildSettings = { CODE_SIGN_STYLE = Automatic; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; PRODUCT_BUNDLE_IDENTIFIER = org.pdbridge.private.uitests; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; TEST_TARGET_NAME = PDBridge; }; name = Release; };
 /* End XCBuildConfiguration section */
 

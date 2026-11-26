@@ -29,6 +29,7 @@ targets:
     platform: iOS
     sources:
       - ios/Observation.swift
+      - ios/ObservationAnalytics.swift
       - ios/ObservationService.swift
       - ios/ProtectedObservationVault.swift
       - ios/ObservationBackup.swift
@@ -44,7 +45,10 @@ targets:
         CFBundleDisplayName: "$(APP_DISPLAY_NAME)"
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
-        UILaunchScreen: {}
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+          UIImageName: LaunchMark
+          UIImageRespectsSafeAreaInsets: true
         UIFileSharingEnabled: false
     settings:
       base:
@@ -68,6 +72,8 @@ targets:
     sources:
       - watch
       - shared/FictionalWatchEvent.swift
+    resources:
+      - watch/Assets.xcassets
     info:
       path: watch/Info.plist
       properties:

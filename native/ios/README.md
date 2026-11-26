@@ -19,7 +19,7 @@ On 2026-11-04/05, the iPhone 14 simulator build was installed and launched and t
 Run from the repository root:
 
 ```sh
-DEVELOPER_DIR=/path/to/Xcode.app/Contents/Developer xcrun swiftc native/ios/Observation.swift native/shared/FictionalWatchEvent.swift native/ios/ObservationService.swift native/ios/ProtectedObservationVault.swift native/ios/ObservationBackup.swift native/ios/NativeStrings.swift native/watch/FictionalWatchOutbox.swift native/ios/Tests/main.swift -o /tmp/pdbridge-native-smoke
+DEVELOPER_DIR=/path/to/Xcode.app/Contents/Developer xcrun swiftc native/ios/Observation.swift native/ios/ObservationAnalytics.swift native/shared/FictionalWatchEvent.swift native/ios/ObservationService.swift native/ios/ProtectedObservationVault.swift native/ios/ObservationBackup.swift native/ios/NativeStrings.swift native/watch/FictionalWatchOutbox.swift native/ios/Tests/main.swift -o /tmp/pdbridge-native-smoke
 /tmp/pdbridge-native-smoke
 native/ios/Tests/run-vault-integration.sh
 node native/ios/Tests/scaffold-check.mjs

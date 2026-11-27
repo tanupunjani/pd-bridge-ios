@@ -37,9 +37,14 @@ final class PDBridgeUITests: XCTestCase {
         attachScreen("hybrid-track")
         app.buttons["home.quick.tremor"].tap()
         openHistory()
-        XCTAssertTrue(app.staticTexts["Tremor recorded manually."].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Fictional tremor test event."].waitForExistence(timeout: 5))
         attachScreen("hybrid-history")
-        app.switches.matching(NSPredicate(format: "identifier CONTAINS 'history.includeInAppointment'")).firstMatch.tap()
+        let include = app.switches.matching(NSPredicate(
+            format: "identifier CONTAINS 'history.includeInAppointment'"
+        )).firstMatch
+        scrollUntilHittable(include, in: app.scrollViews.firstMatch)
+        include.tap()
+        XCTAssertEqual(include.value as? String, "Included in appointment")
         // Capture settled screens and verify the selection survives app restart.
         app.terminate()
         app = launchApp(extraArguments: ["-pdbridge.comfortMode", "NO"], testRunID: uiTestRunID)
@@ -49,10 +54,19 @@ final class PDBridgeUITests: XCTestCase {
         app.buttons["insights.dateRange.month"].tap()
         attachScreen("hybrid-insights-monthly")
         app.buttons["tab.Visits"].tap()
-        XCTAssertTrue(app.buttons["appointment.reviewReport"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Selected entries: 1"].waitForExistence(timeout: 5))
+        let review = app.buttons["appointment.reviewReport"]
+        XCTAssertTrue(review.isEnabled)
         attachScreen("hybrid-visits")
-        app.buttons["appointment.reviewReport"].tap()
-        XCTAssertTrue(app.staticTexts["Tremor recorded manually."].waitForExistence(timeout: 5))
+        scrollUntilHittable(review, in: app.scrollViews.firstMatch)
+        review.tap()
+        let preview = app.staticTexts["appointment.reportPreviewText"]
+        XCTAssertTrue(preview.waitForExistence(timeout: 5))
+        XCTAssertTrue(preview.label.contains("Fictional tremor test event."))
+        for _ in 0..<5 where !preview.isHittable {
+            app.scrollViews.firstMatch.swipeUp(velocity: .slow)
+        }
+        XCTAssertTrue(preview.isHittable)
         attachScreen("hybrid-report")
         openSettings()
         XCTAssertTrue(app.switches["Comfort Mode"].waitForExistence(timeout: 5))

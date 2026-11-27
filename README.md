@@ -2,7 +2,9 @@
 
 PD Bridge is a **pre-release** SwiftUI observation journal and appointment-preparation app. It lets a person save notes in their own wording, record manual events, correct or delete entries, and select observations for a factual appointment report. Optional voice notes are reviewed before saving. This repository is source code, not an App Store download or a clinical product.
 
-![PD Bridge Home with fictional content](screenshots/home.png)
+![Approved Track design running with fictional content in an iPhone 14 simulator](screenshots/approved-hybrid/track.png)
+
+The current development branch implements the founder-approved **Calm Editorial + Modern Health Intelligence** design: a two-arch identity, a first-launch welcome, large manual Track actions, grouped History, local weekly/monthly Insights, and Visits report preparation. [Actual simulator screenshots](screenshots/approved-hybrid/) show the light appearance and draft Urdu layout. Analytics count only locally recorded observations and do not infer health status from unrecorded days.
 
 ## Privacy and accessibility
 
@@ -25,7 +27,7 @@ The native contract checks are in `native/ios/Tests`; the iPhone-only packaging 
 
 ## Limitations and project history
 
-HealthKit and real-time fall detection remain disabled. Personal Team signing is unsuitable for public distribution. A signed Release archive, App Store Connect disclosures and review, physical-device checks, and appropriate privacy/medical-regulatory review remain necessary before allowing real health observations.
+HealthKit and real-time fall detection remain disabled. The redesigned branch has passed unsigned device-SDK builds and local simulator UI checks, but has not been installed on a physical device. A signed Release archive, App Store Connect disclosures and review, physical-device checks, and appropriate privacy/medical-regulatory review remain necessary before allowing real health observations. WatchConnectivity delivery has not been verified end to end on hardware.
 
 See the [engineering case study](https://tanupunjani.github.io/pd-bridge-case-study/), [Privacy Policy](https://tanupunjani.github.io/pd-bridge-case-study/privacy.html), and [support page](https://tanupunjani.github.io/pd-bridge-case-study/support.html).
 

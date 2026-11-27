@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 const file = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const project = file("../../PDBridgeNative.xcodeproj/project.pbxproj");
 const phone = file("../App/NativeViews.swift");
+const design = file("../App/PDDesignSystem.swift");
 const talk = phone.slice(phone.indexOf("private struct ScriptedTalkDemoView"), phone.indexOf("private extension Observation.Kind"));
 const watch = file("../../watch/PDBridgeWatchApp.swift");
 const sender = file("../../watch/WatchTransfer.swift");
@@ -13,6 +14,7 @@ const appDelegate = file("../App/PDBridgeApp.swift");
 const voiceCapture = model.slice(model.indexOf("final class LocalVoiceCapture"), model.indexOf("final class VoiceNotePlaybackController"));
 const service = file("../ObservationService.swift");
 const observation = file("../Observation.swift");
+const analytics = file("../ObservationAnalytics.swift");
 const backup = file("../ObservationBackup.swift");
 const strings = file("../NativeStrings.swift");
 const fallAdapter = file("../../watch/EntitlementGatedFallAdapter.swift");
@@ -31,10 +33,13 @@ assert.match(project, /APP_DISPLAY_NAME = "PD Bridge"/);
 assert.match(project, /MARKETING_VERSION = 1\.0\.0/);
 assert.match(project, /DEVELOPMENT_TEAM = ""/,
   "Release signing has no Personal Team selected pending organization enrollment");
+assert.doesNotMatch(project, /DEVELOPMENT_TEAM\s*=\s*;/,
+  "Every development team setting must remain valid when account identifiers are removed");
 assert.match(projectYAML, /resources:[\s\S]*ios\/App\/Assets\.xcassets[\s\S]*ios\/App\/PrivacyInfo\.xcprivacy/);
 assert.doesNotMatch(projectYAML, /target: PDBridgeWatch[\s\S]*embed: true/);
 assert.match(project, /ObservationBackup\.swift in Sources/);
 assert.match(project, /NativeStrings\.swift in Sources/);
+assert.match(project, /ObservationAnalytics\.swift in Sources/);
 assert.match(project, /FictionalWatchOutbox\.swift in Sources/);
 assert.match(project, /EntitlementGatedFallAdapter\.swift in Sources/);
 assert.doesNotMatch(project, /HealthKitFallSource\.swift in Sources/);
@@ -109,7 +114,21 @@ assert.match(phone, /Import and merge this backup\?/);
 assert.match(phone, /accessibilityHint\("Shows the original wording/);
 assert.match(phone, /accessibilityHint\(NativeBuildCopy\.quickEventHint\)/);
 assert.match(phone, /accessibilityLabel\("Search history entries"\)/);
-assert.match(phone, /accessibilityValue\(filter\.title/);
+assert.match(phone, /accessibilityValue\(statusFilter\.title/);
+assert.match(phone, /history\.dateWindow/);
+assert.match(phone, /history\.kindFilter/);
+assert.match(phone, /history\.sourceFilter/);
+assert.match(analytics, /enum ObservationHistoryQuery/);
+assert.match(analytics, /recordedAt <= now && \(dateStart\.map \{ item\.recordedAt >= \$0 \} \?\? true\)/,
+  "History excludes future save timestamps and applies date presets to recorded time");
+assert.match(analytics, /sorted \{[\s\S]*recordedAt >/);
+assert.match(phone, /Chart\(categoryCounts\)/,
+  "Appointment has a visual count breakdown alongside its accessible numeric equivalent");
+assert.match(phone, /appointment\.reportPreviewText/);
+assert.match(phone, /factualReportText\(entries, languageCode: languageCode\)[\s\S]*printFactualReport\(reportText\)/,
+  "Visible report preview and print action use one report string derived from the same selected entries");
+assert.match(phone, /HistoryTimelineMarker\(isLast:/,
+  "History presents chronological entries with a connected timeline marker");
 assert.match(phone, /dynamicTypeSize\.isAccessibilitySize/);
 assert.match(phone, /Try scripted Talk demo \(English\)/);
 assert.match(phone, /Stop without saving/);
@@ -119,14 +138,18 @@ assert.match(phone, /Original wording is preserved exactly as entered/);
 assert.match(phone, /accessibilityAddTraits\(\.updatesFrequently\)/);
 assert.match(phone, /accessibilityElement\(children: \.combine\)/);
 assert.match(phone, /accessibilityLabel\(message\)/);
-assert.match(phone, /minHeight: comfortMode \? 64 : 56/);
+assert.match(phone, /minHeight: comfortMode \? 72 : \(prominent \? 64 : 56\)/);
 assert.match(phone, /private struct NativeBottomNavigation: View/);
+assert.match(phone, /\("Track", "plus\.circle"\)[\s\S]*\("History", "calendar"\)[\s\S]*\("Insights", "chart\.bar\.xaxis"\)[\s\S]*\("Visits", "calendar\.badge\.clock"\)/,
+  "Four approved destinations remain visible in the native navigation");
+assert.match(design, /struct PDBridgeArch: Shape/);
+assert.match(design, /static let blue = adaptive\(0x245BC0/);
 assert.match(phone, /if dynamicTypeSize\.isAccessibilitySize \{[\s\S]*Text\(visibleTitle\)[\s\S]*\} else \{[\s\S]*Image\(systemName: destination\.symbol\)/,
   "Accessibility-size navigation keeps text labels and removes redundant icons");
-assert.match(phone, /let visibleTitle = dynamicTypeSize\.isAccessibilitySize && destination\.title == "Appointment"[\s\S]*NativeStrings\.text\("Plan", languageCode: languageCode\)[\s\S]*\.accessibilityLabel\(title\)/,
-  "The appointment tab uses a compact visible label at accessibility sizes and keeps its full screen-reader name");
-assert.match(phone, /if !dynamicTypeSize\.isAccessibilitySize \{[\s\S]*NativeBuildCopy\.homeIntro/,
-  "Home keeps its primary capture action visible by removing only secondary copy at accessibility sizes");
+assert.match(phone, /let visibleTitle = title[\s\S]*\.accessibilityLabel\(title\)/,
+  "Visible tab labels and screen-reader names use the same destination name");
+assert.match(phone, /private var usesSingleColumn: Bool \{ comfortMode \|\| dynamicTypeSize\.isAccessibilitySize \}/,
+  "Track cards reflow to one column in Comfort Mode and accessibility text sizes");
 assert.match(phone, /ScrollViewReader \{ scrollProxy in[\s\S]*DemoBanner\(\)\.id\("home-top"\)[\s\S]*\.sheet\(item: \$activeSheet, onDismiss:[\s\S]*scrollProxy\.scrollTo\("home-top", anchor: \.top\)/,
   "Home returns to its start after note or Talk sheets are dismissed");
 assert.doesNotMatch(phone, /TabView\(selection:/, "Core navigation must not use the floating translucent system tab bar");
@@ -154,7 +177,7 @@ assert.match(model, /requestAuthorization\(options: \[\.alert, \.sound\]\)/,
   "Notifications are requested only after a user enables the reminder");
 assert.match(phone, /Daily medication reminder/);
 assert.match(phone, /does not give dosing advice or confirm a dose/);
-assert.match(phone, /Button\("Call a caregiver"\)/);
+assert.match(phone, /Button\(NativeStrings\.text\("Caregiver or help", languageCode: languageCode\)\)/);
 assert.match(phone, /does not monitor emergencies[\s\S]*local emergency services directly/);
 assert.match(phone, /TextField\("Caregiver name", text: \$caregiverName\)/);
 assert.match(phone, /TextField\("Phone number", text: \$caregiverPhone\)/);

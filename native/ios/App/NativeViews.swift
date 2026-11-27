@@ -1,33 +1,14 @@
 import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
+import Charts
 
-private enum Palette {
-    static let page = adaptive(light: UIColor(red: 0.949, green: 0.973, blue: 0.961, alpha: 1),
-                               dark: UIColor(red: 0.055, green: 0.090, blue: 0.078, alpha: 1))
-    static let surface = adaptive(light: .white,
-                                  dark: UIColor(red: 0.105, green: 0.145, blue: 0.128, alpha: 1))
-    static let ink = adaptive(light: UIColor(red: 0.110, green: 0.188, blue: 0.173, alpha: 1), dark: .white)
-    // Use a lighter teal for text and controls in dark appearance; keep the
-    // dark-green action fill fixed so white button labels remain high contrast.
-    static let teal = adaptive(light: UIColor(red: 0.086, green: 0.373, blue: 0.333, alpha: 1),
-                               dark: UIColor(red: 0.42, green: 0.78, blue: 0.67, alpha: 1))
-    static let actionFill = Color(red: 0.086, green: 0.373, blue: 0.333)
-    static let onAction = Color.white
-    static let line = Color(uiColor: .separator)
-    static let danger = adaptive(light: UIColor(red: 0.573, green: 0.204, blue: 0.169, alpha: 1),
-                                 dark: UIColor(red: 1.0, green: 0.43, blue: 0.38, alpha: 1))
-
-    private static func adaptive(light: UIColor, dark: UIColor) -> Color {
-        Color(uiColor: UIColor { traits in
-            traits.userInterfaceStyle == .dark ? dark : light
-        })
-    }
-}
+private typealias Palette = PDColors
 
 private struct ActionStyle: ButtonStyle {
     @AppStorage("pdbridge.comfortMode") private var comfortMode = false
     var prominent = false
+    var intelligence = false
     var destructive = false
 
     func makeBody(configuration: Configuration) -> some View {
@@ -37,13 +18,13 @@ private struct ActionStyle: ButtonStyle {
                 : .body.weight(.semibold))
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
-            .frame(maxWidth: .infinity, minHeight: comfortMode ? 64 : 56)
+            .frame(maxWidth: .infinity, minHeight: comfortMode ? 72 : (prominent ? 64 : 56))
             .padding(.horizontal, 12)
             .foregroundColor(prominent ? Palette.onAction : (destructive ? Palette.danger : Palette.teal))
-            .background((prominent ? Palette.actionFill : Palette.surface)
+            .background((prominent ? (intelligence ? Palette.blueFill : Palette.actionFill) : Palette.surface)
                 .opacity(configuration.isPressed ? 0.82 : 1))
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-            .overlay(RoundedRectangle(cornerRadius: 14).stroke(Palette.line, lineWidth: prominent ? 0 : 1))
+            .clipShape(RoundedRectangle(cornerRadius: PDLayout.cardRadius))
+            .overlay(RoundedRectangle(cornerRadius: PDLayout.cardRadius).stroke(Palette.line, lineWidth: prominent ? 0 : 1))
     }
 }
 
@@ -119,37 +100,50 @@ struct WelcomeView: View {
     let onStart: () -> Void
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                Image("BrandMark")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 88, height: 88)
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
-                    .accessibilityHidden(true)
-                Text("Welcome to PD Bridge")
-                    .font(.largeTitle.bold())
-                    .accessibilityAddTraits(.isHeader)
-                Text("A private place to keep observations in your own words and prepare a factual list for an appointment.")
-                    .font(.body)
-                Text("Your saved diary stays encrypted on this iPhone. PD Bridge does not diagnose, detect falls automatically, or monitor emergencies.")
-                    .font(.body)
-                Button("Get started", action: onStart)
-                    .buttonStyle(ActionStyle(prominent: true))
-                    .accessibilityIdentifier("welcome.getStarted")
+        GeometryReader { geometry in
+            ZStack(alignment: .bottom) {
+                Palette.page.ignoresSafeArea()
+                PDWelcomeLandscape()
+                    .frame(height: min(geometry.size.height * 0.36, 280))
+                    .ignoresSafeArea(edges: .bottom)
+                ScrollView {
+                    VStack(spacing: 20) {
+                        Spacer(minLength: 24)
+                        PDBridgeMark()
+                            .frame(width: 180, height: 140)
+                        Text("Welcome to PD Bridge")
+                            .font(.largeTitle.bold())
+                            .multilineTextAlignment(.center)
+                            .accessibilityAddTraits(.isHeader)
+                        Text("Connecting everyday experiences with better-informed care.")
+                            .font(.title3)
+                            .multilineTextAlignment(.center)
+                        Text("Record observations and prepare a factual list for an appointment.")
+                            .font(.body)
+                            .multilineTextAlignment(.center)
+                        Text("Your saved diary stays encrypted on this iPhone. PD Bridge does not diagnose, detect falls automatically, or monitor emergencies.")
+                            .font(.footnote)
+                            .multilineTextAlignment(.center)
+                        Spacer(minLength: 64)
+                        Button("Get started", action: onStart)
+                            .buttonStyle(ActionStyle(prominent: true))
+                            .accessibilityIdentifier("welcome.getStarted")
+                    }
+                    .frame(maxWidth: 560)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: geometry.size.height - 24)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 24)
+                }
             }
-            .frame(maxWidth: 560, alignment: .leading)
-            .frame(maxWidth: .infinity)
-            .padding(24)
         }
         .foregroundColor(Palette.ink)
-        .background(Palette.page.ignoresSafeArea())
     }
 }
 
 struct MainTabs: View {
-    @State private var showSettings = false
     @State private var selectedTab = 0
+    @State private var showSettings = false
     @AppStorage("pdbridge.language") private var languageCode = NativeLanguage.english.rawValue
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -158,8 +152,12 @@ struct MainTabs: View {
     var body: some View {
         ZStack {
             NavigationStack {
-                HomeView()
-                    .toolbar { settingsToolbar }
+                HomeView(
+                    onOpenHistory: { selectedTab = 1 },
+                    onOpenInsights: { selectedTab = 2 },
+                    onOpenAppointment: { selectedTab = 3 },
+                    onOpenSettings: { showSettings = true }
+                )
             }
             .toolbarBackground(Palette.page, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
@@ -169,7 +167,6 @@ struct MainTabs: View {
 
             NavigationStack {
                 HistoryView()
-                    .toolbar { settingsToolbar }
             }
             .toolbarBackground(Palette.page, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
@@ -178,14 +175,22 @@ struct MainTabs: View {
             .accessibilityHidden(selectedTab != 1)
 
             NavigationStack {
-                AppointmentView(onOpenHistory: { selectedTab = 1 })
-                    .toolbar { settingsToolbar }
+                InsightsView()
             }
             .toolbarBackground(Palette.page, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .opacity(selectedTab == 2 ? 1 : 0)
             .allowsHitTesting(selectedTab == 2)
             .accessibilityHidden(selectedTab != 2)
+
+            NavigationStack {
+                AppointmentView(onOpenHistory: { selectedTab = 1 })
+            }
+            .toolbarBackground(Palette.page, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .opacity(selectedTab == 3 ? 1 : 0)
+            .allowsHitTesting(selectedTab == 3)
+            .accessibilityHidden(selectedTab != 3)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .tint(Palette.teal)
@@ -202,28 +207,15 @@ struct MainTabs: View {
             NativeBottomNavigation(selectedTab: $selectedTab, languageCode: languageCode)
         }
         .background(Palette.page.ignoresSafeArea())
+        .sheet(isPresented: $showSettings) {
+            NavigationStack {
+                SettingsView()
+            }
+        }
         .environment(\.locale, Locale(identifier: language.localeIdentifier))
         .environment(\.layoutDirection, language == .urdu ? .rightToLeft : .leftToRight)
         .transaction { transaction in
             if reduceMotion { transaction.animation = nil }
-        }
-        .sheet(isPresented: $showSettings) {
-            NavigationStack { SettingsView() }
-                .toolbarBackground(Palette.page, for: .navigationBar)
-                .toolbarBackground(.visible, for: .navigationBar)
-                .foregroundColor(Palette.ink)
-                .tint(Palette.teal)
-                .environment(\.locale, Locale(identifier: language.localeIdentifier))
-                .environment(\.layoutDirection, language == .urdu ? .rightToLeft : .leftToRight)
-        }
-    }
-
-    @ToolbarContentBuilder private var settingsToolbar: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Button { showSettings = true } label: {
-                Label(NativeStrings.text("Settings", languageCode: languageCode), systemImage: "gearshape")
-            }
-            .accessibilityLabel(NativeStrings.text("Settings", languageCode: languageCode))
         }
     }
 }
@@ -234,9 +226,10 @@ private struct NativeBottomNavigation: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private let destinations: [(title: String, symbol: String)] = [
-        ("Home", "house"),
-        ("History", "clock.arrow.circlepath"),
-        ("Appointment", "doc.text")
+        ("Track", "plus.circle"),
+        ("History", "calendar"),
+        ("Insights", "chart.bar.xaxis"),
+        ("Visits", "calendar.badge.clock")
     ]
 
     var body: some View {
@@ -263,9 +256,7 @@ private struct NativeBottomNavigation: View {
     private func destinationButton(at index: Int) -> some View {
         let destination = destinations[index]
         let title = NativeStrings.text(destination.title, languageCode: languageCode)
-        let visibleTitle = dynamicTypeSize.isAccessibilitySize && destination.title == "Appointment"
-            ? NativeStrings.text("Plan", languageCode: languageCode)
-            : title
+        let visibleTitle = title
         let isSelected = selectedTab == index
         return Button { selectedTab = index } label: {
             Group {
@@ -290,7 +281,7 @@ private struct NativeBottomNavigation: View {
             .foregroundColor(isSelected ? Palette.teal : Palette.ink)
             .frame(maxWidth: .infinity, minHeight: 56)
             .padding(.horizontal, 4)
-            .background(isSelected ? Palette.teal.opacity(0.12) : .clear)
+            .background(isSelected ? Palette.sage : .clear)
             .clipShape(Capsule())
             .contentShape(Capsule())
         }
@@ -302,6 +293,10 @@ private struct NativeBottomNavigation: View {
 }
 
 private struct HomeView: View {
+    let onOpenHistory: () -> Void
+    let onOpenInsights: () -> Void
+    let onOpenAppointment: () -> Void
+    let onOpenSettings: () -> Void
     @EnvironmentObject private var model: DiaryModel
     @AppStorage("pdbridge.language") private var languageCode = NativeLanguage.english.rawValue
     @AppStorage("pdbridge.comfortMode") private var comfortMode = false
@@ -310,55 +305,143 @@ private struct HomeView: View {
 
     private var usesSingleColumn: Bool { comfortMode || dynamicTypeSize.isAccessibilitySize }
 
+    private var recentEntries: [Observation] {
+        Array(model.observations.sorted { $0.recordedAt > $1.recordedAt }.prefix(3))
+    }
+
+    private var pendingReviewCount: Int {
+        model.observations.filter { $0.confirmation == .pendingReview }.count
+    }
+
+    private var sevenDaySnapshot: ObservationAnalyticsService.Snapshot {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let start = calendar.date(byAdding: .day, value: -6, to: today) ?? today
+        let end = calendar.date(byAdding: .day, value: 1, to: today) ?? Date()
+        return ObservationAnalyticsService.snapshot(
+            observations: model.observations,
+            in: DateInterval(start: start, end: end),
+            calendar: calendar
+        )
+    }
+
     var body: some View {
         ScrollViewReader { scrollProxy in
             ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 12) {
                     DemoBanner().id("home-top")
-                    Text(NativeStrings.text("Keep what matters", languageCode: languageCode))
-                        .font(.largeTitle.bold())
-                        .foregroundColor(Palette.ink)
-                        .accessibilityAddTraits(.isHeader)
-                    if !dynamicTypeSize.isAccessibilitySize {
-                        Text(NativeBuildCopy.homeIntro)
-                            .font(.body)
+                    Text("Record a symptom or event.")
+                        .font(.body)
+                    if let notice = model.notice {
+                        NoticeBanner(message: notice, tone: model.noticeTone)
                     }
                     Button(NativeStrings.text("Write a note", languageCode: languageCode)) { activeSheet = .note }
                         .buttonStyle(ActionStyle(prominent: true))
                         .accessibilityIdentifier("home.writeNote")
                         .disabled(!model.canWrite)
-                    Button("Record a voice note") { activeSheet = .voice }
+                    LazyVGrid(columns: usesSingleColumn
+                        ? [GridItem(.flexible())]
+                        : [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                        ForEach([Observation.Kind.tremor, .fall, .nearFall, .freezing, .movement, .otherSymptom], id: \.rawValue) { kind in
+                            PDSymptomCard(title: kind.title(languageCode: languageCode), symbol: kind.symbolName) {
+                                _ = model.addQuickEvent(kind)
+                            }
+                                .disabled(!model.canWrite)
+                                .accessibilityHint(NativeBuildCopy.quickEventHint)
+                                .accessibilityIdentifier("home.quick.\(kind.rawValue)")
+                        }
+                    }
+                    HStack(spacing: 12) {
+                        Button {
+                            activeSheet = .voice
+                        } label: {
+                            Label(NativeStrings.text("Voice note", languageCode: languageCode), systemImage: "mic")
+                        }
                         .buttonStyle(ActionStyle())
                         .disabled(!model.canWrite)
                         .accessibilityHint("Record an optional clip up to two minutes. The original audio stays in the encrypted on-device vault and is not transcribed.")
-                    if let notice = model.notice {
-                        NoticeBanner(message: notice, tone: model.noticeTone)
+                        Button(NativeStrings.text("Caregiver or help", languageCode: languageCode)) { activeSheet = .help }
+                            .buttonStyle(ActionStyle())
+                            .accessibilityIdentifier("home.help")
+                            .accessibilityHint("Enter caregiver details, review them, then choose Open Phone yourself. PD Bridge does not monitor emergencies or call anyone automatically.")
                     }
-                    Text(NativeStrings.text(NativeBuildCopy.quickEventsHeading, languageCode: languageCode))
-                        .font(.title2.bold())
-                    Text(NativeBuildCopy.quickEventsDescription)
-                        .font(.callout)
-                    LazyVGrid(columns: usesSingleColumn
-                        ? [GridItem(.flexible())]
-                        : [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                        ForEach([Observation.Kind.fall, .nearFall, .freezing, .movement], id: \.rawValue) { kind in
-                            Button(kind.title(languageCode: languageCode)) { _ = model.addQuickEvent(kind) }
-                                .buttonStyle(ActionStyle())
-                                .disabled(!model.canWrite)
-                                .accessibilityLabel(kind.title(languageCode: languageCode))
-                                .accessibilityHint(NativeBuildCopy.quickEventHint)
+                    Text("Each action saves one manually recorded entry. You can correct it in History.")
+                        .font(.footnote)
+                    Button {
+                        activeSheet = .eventPicker
+                    } label: {
+                        Label(NativeStrings.text("Log an event", languageCode: languageCode), systemImage: "plus.circle.fill")
+                    }
+                    .buttonStyle(ActionStyle())
+                    .accessibilityIdentifier("home.logEvent")
+                    .disabled(!model.canWrite)
+                    if NativeBuildCopy.talkDemoAvailable {
+                        Button("Try scripted Talk demo (English)") { activeSheet = .talk }
+                            .buttonStyle(ActionStyle())
+                            .accessibilityIdentifier("home.talkDemo")
+                            .accessibilityHint("Optional local text-only demonstration using fixed fictional choices. No microphone or AI is used.")
+                    }
+
+                    if pendingReviewCount > 0 {
+                        Button(action: onOpenHistory) {
+                            Label("\(pendingReviewCount) event\(pendingReviewCount == 1 ? "" : "s") waiting for review", systemImage: "exclamationmark.circle")
+                        }
+                        .buttonStyle(ActionStyle())
+                        .accessibilityIdentifier("home.pendingReviews")
+                        .accessibilityHint("Opens History to review saved events before including them in an appointment list.")
+                    }
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(NativeStrings.text("Recorded in the past 7 days", languageCode: languageCode))
+                                .font(.title3.bold())
+                                .accessibilityAddTraits(.isHeader)
+                            Spacer(minLength: 8)
+                            Text("\(sevenDaySnapshot.uniqueEntryCount)")
+                                .font(.title.bold().monospacedDigit())
+                                .accessibilityLabel("\(sevenDaySnapshot.uniqueEntryCount) saved entries in the past 7 days")
+                        }
+                        Text("This counts entries saved in PD Bridge. It cannot show events that were not recorded.")
+                            .font(.callout)
+                        HStack(spacing: 10) {
+                            Text("\(NativeStrings.text("Confirmed", languageCode: languageCode)): \(sevenDaySnapshot.confirmedCount)")
+                            Text("\(NativeStrings.text("Needs review", languageCode: languageCode)): \(sevenDaySnapshot.pendingReviewCount)")
+                        }
+                        .font(.footnote.weight(.semibold))
+                        Button(NativeStrings.text("Open Insights", languageCode: languageCode), action: onOpenInsights)
+                            .buttonStyle(ActionStyle())
+                            .accessibilityIdentifier("home.openInsights")
+                    }
+                    .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Palette.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+
+                    HStack {
+                            Text(NativeStrings.text("Recent events", languageCode: languageCode))
+                            .font(.title2.bold())
+                            .accessibilityAddTraits(.isHeader)
+                        Spacer()
+                        Button(NativeStrings.text("View full History", languageCode: languageCode), action: onOpenHistory)
+                            .font(.callout.weight(.semibold))
+                            .accessibilityIdentifier("home.openHistory")
+                    }
+                    if recentEntries.isEmpty {
+                        Text("Your saved entries will appear here.")
+                            .font(.callout)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(16)
+                            .background(Palette.surface)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                    } else {
+                        ForEach(recentEntries) { item in
+                            RecentObservationCard(item: item, languageCode: languageCode)
                         }
                     }
-                    if NativeBuildCopy.talkDemoAvailable {
-                    Button("Try scripted Talk demo (English)") { activeSheet = .talk }
+
+                    Button(NativeStrings.text("Prepare an appointment list", languageCode: languageCode), action: onOpenAppointment)
                         .buttonStyle(ActionStyle())
-                        .accessibilityIdentifier("home.talkDemo")
-                        .accessibilityHint("Optional local text-only demonstration using fixed fictional choices. No microphone or AI is used.")
-                    }
-                    Button("Call a caregiver") { activeSheet = .help }
-                        .buttonStyle(ActionStyle())
-                        .accessibilityIdentifier("home.help")
-                        .accessibilityHint("Enter caregiver details, review them, then choose Open Phone yourself if you want to continue. PD Bridge does not monitor emergencies or call anyone automatically.")
+                        .accessibilityIdentifier("home.openAppointment")
                 }
                 .padding(20)
                 .frame(maxWidth: 680)
@@ -367,12 +450,23 @@ private struct HomeView: View {
                 .padding(.bottom, dynamicTypeSize.isAccessibilitySize ? 176 : 64)
             }
             .background(Palette.page)
-            .navigationTitle("PD Bridge")
+            .navigationTitle(NativeStrings.text("Track", languageCode: languageCode))
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: onOpenSettings) {
+                        Image(systemName: "gearshape")
+                            .frame(width: 44, height: 44)
+                    }
+                    .accessibilityLabel(NativeStrings.text("Settings", languageCode: languageCode))
+                    .accessibilityIdentifier("home.openSettings")
+                }
+            }
             .sheet(item: $activeSheet, onDismiss: {
                 scrollProxy.scrollTo("home-top", anchor: .top)
             }) { destination in
                 switch destination {
+                case .eventPicker: EventKindPicker(languageCode: languageCode)
                 case .note: NoteEditor(item: nil)
                 case .talk:
 #if PD_BRIDGE_SYNTHETIC_BUILD
@@ -389,11 +483,388 @@ private struct HomeView: View {
 }
 
 private enum HomeSheet: String, Identifiable {
+    case eventPicker
     case note
     case talk
     case voice
     case help
     var id: String { rawValue }
+}
+
+private struct EventKindPicker: View {
+    @EnvironmentObject private var model: DiaryModel
+    @Environment(\.dismiss) private var dismiss
+    let languageCode: String
+
+    private let kinds: [Observation.Kind] = [.tremor, .fall, .nearFall, .freezing, .movement, .otherSymptom]
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    Text("Choose one event type. PD Bridge records it manually; it does not detect events.")
+                        .font(.body)
+                    ForEach(kinds, id: \.rawValue) { kind in
+                        Button {
+                            if model.addQuickEvent(kind) { dismiss() }
+                        } label: {
+                            Label(kind.title(languageCode: languageCode), systemImage: kind.symbolName)
+                        }
+                        .buttonStyle(ActionStyle())
+                        .disabled(!model.canWrite)
+                        .accessibilityHint(NativeBuildCopy.quickEventHint)
+                    }
+                }
+                .padding(20)
+            }
+            .foregroundColor(Palette.ink)
+            .background(Palette.page.ignoresSafeArea())
+            .navigationTitle(NativeStrings.text("Log an event", languageCode: languageCode))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+        }
+        .tint(Palette.teal)
+    }
+}
+
+private struct RecentObservationCard: View {
+    let item: Observation
+    let languageCode: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(item.kind.title(languageCode: languageCode), systemImage: item.kind.symbolName)
+                .font(.headline)
+            Text(verbatim: item.savedText)
+                .font(.body)
+                .lineLimit(3)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("\(ObservationTimeLabels.primaryDisplay(for: item)) · \(item.origin.sourceLabel)")
+                .font(.footnote)
+            if item.confirmation == .pendingReview {
+                Label("Needs review", systemImage: "exclamationmark.circle")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundColor(Palette.teal)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .accessibilityElement(children: .combine)
+    }
+}
+
+private enum InsightsWindow: String, CaseIterable, Identifiable {
+    case week
+    case month
+
+    var id: String { rawValue }
+    var dayCount: Int {
+        switch self {
+        case .week: return 7
+        case .month: return 30
+        }
+    }
+    var bucketSize: ObservationAnalyticsService.BucketSize {
+        switch self {
+        case .week: return .day
+        case .month: return .week
+        }
+    }
+    var title: String {
+        switch self {
+        case .week: return "Weekly"
+        case .month: return "Monthly"
+        }
+    }
+}
+
+private struct InsightsView: View {
+    @EnvironmentObject private var model: DiaryModel
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @AppStorage("pdbridge.comfortMode") private var comfortMode = false
+    @AppStorage("pdbridge.language") private var languageCode = NativeLanguage.english.rawValue
+    @State private var selectedWindow: InsightsWindow = .week
+
+    private var usesSingleColumn: Bool { comfortMode || dynamicTypeSize.isAccessibilitySize }
+
+    private var snapshot: ObservationAnalyticsService.Snapshot {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let end = calendar.date(byAdding: .day, value: 1, to: today) ?? Date()
+        let start = calendar.date(byAdding: .day, value: 1 - selectedWindow.dayCount, to: today) ?? today
+        return ObservationAnalyticsService.snapshot(
+            observations: model.observations,
+            in: DateInterval(start: start, end: end),
+            calendar: calendar
+        )
+    }
+
+    private var totals: [ObservationAnalyticsService.Bucket] {
+        snapshot.totals(for: selectedWindow.bucketSize)
+    }
+
+    private var previousSnapshot: ObservationAnalyticsService.Snapshot {
+        let calendar = Calendar.current
+        let currentStart = snapshot.dateRange.start
+        let previousStart = calendar.date(byAdding: .day, value: -selectedWindow.dayCount, to: currentStart) ?? currentStart
+        return ObservationAnalyticsService.snapshot(
+            observations: model.observations,
+            in: DateInterval(start: previousStart, end: currentStart),
+            calendar: calendar
+        )
+    }
+
+    private var accessibleTotals: String {
+        totals.map {
+            "\($0.start.formatted(date: .abbreviated, time: .omitted)): \($0.total) saved entries"
+        }.joined(separator: ". ")
+    }
+
+    private var hourlySummary: String {
+        let values = snapshot.hourlyCounts.filter { $0.count > 0 }.map {
+            "\(String(format: "%02d:00", $0.hour)): \($0.count)"
+        }
+        return values.isEmpty ? "No recorded values." : values.joined(separator: ", ")
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                DemoBanner()
+                if let notice = model.notice { NoticeBanner(message: notice, tone: model.noticeTone) }
+                Text("See entries recorded over time.")
+                    .font(.body)
+
+                HStack(spacing: 0) {
+                    ForEach(InsightsWindow.allCases) { window in
+                        Button(NativeStrings.text(window.title, languageCode: languageCode)) {
+                            selectedWindow = window
+                        }
+                        .font(.body.weight(.semibold))
+                        .frame(maxWidth: .infinity, minHeight: 48)
+                        .foregroundColor(selectedWindow == window ? .white : Palette.navy)
+                        .background(selectedWindow == window ? Palette.blueFill : .clear)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .accessibilityIdentifier("insights.dateRange.\(window.rawValue)")
+                        .accessibilityAddTraits(selectedWindow == window ? .isSelected : [])
+                    }
+                }
+                .padding(4)
+                .background(Palette.sage.opacity(0.55))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+
+                Text("\(snapshot.dateRange.start.formatted(date: .abbreviated, time: .omitted)) – \(snapshot.dateRange.end.addingTimeInterval(-1).formatted(date: .abbreviated, time: .omitted))")
+                    .font(.footnote)
+                    .accessibilityLabel("Showing recorded entries from \(snapshot.dateRange.start.formatted(date: .long, time: .omitted)) through \(snapshot.dateRange.end.addingTimeInterval(-1).formatted(date: .long, time: .omitted))")
+
+                LazyVGrid(columns: usesSingleColumn
+                    ? [GridItem(.flexible())]
+                    : [GridItem(.adaptive(minimum: 132), spacing: 12)], spacing: 12) {
+                    MetricTile(title: NativeStrings.text("Saved entries", languageCode: languageCode), value: snapshot.uniqueEntryCount, symbol: "tray.full")
+                    MetricTile(title: "Previous period", value: previousSnapshot.uniqueEntryCount, symbol: "calendar.badge.clock")
+                }
+                Text("\(snapshot.dailyTotals.filter { $0.total > 0 }.count) \(snapshot.dailyTotals.filter { $0.total > 0 }.count == 1 ? "day has" : "days have") saved entries in this period. Unrecorded days are unknown, not confirmed symptom-free days.")
+                    .font(.footnote)
+
+                if snapshot.uniqueEntryCount == 0 {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label(NativeStrings.text("No entries saved in this period", languageCode: languageCode), systemImage: "chart.bar")
+                            .font(.headline)
+                        Text(NativeStrings.text("This means no entries are stored for the selected dates. It does not show whether an event or symptom occurred.", languageCode: languageCode))
+                            .font(.callout)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(16)
+                    .background(Palette.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+
+                analyticsCard(title: NativeStrings.text("Recorded entries by period", languageCode: languageCode), symbol: "chart.bar.xaxis") {
+                    Chart(totals) { bucket in
+                        BarMark(
+                            x: .value("Period", bucket.start, unit: selectedWindow.bucketSize.calendarComponent),
+                            y: .value("Saved entries", bucket.total)
+                        )
+                        .foregroundStyle(Palette.blue)
+                    }
+                    .chartYAxis { AxisMarks(position: .leading) }
+                    .chartXAxis { AxisMarks(values: .automatic(desiredCount: usesSingleColumn ? 4 : 6)) }
+                    .frame(height: 220)
+                    .accessibilityLabel("Bar chart of saved entries by \(selectedWindow.bucketSize.title.lowercased()) period")
+                    Text(accessibleTotals.isEmpty ? "No recorded values." : accessibleTotals)
+                        .font(.footnote)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityLabel("Chart values. \(accessibleTotals)")
+                }
+
+                analyticsCard(title: "Events by type", symbol: "chart.bar.fill") {
+                    let counts = snapshot.kindCounts.filter { $0.count > 0 && $0.kind != .note }
+                    if counts.isEmpty {
+                        Text("No event types recorded in this period.")
+                    } else {
+                        Chart(counts) { item in
+                            BarMark(
+                                x: .value("Saved entries", item.count),
+                                y: .value("Event type", item.kind.title(languageCode: languageCode))
+                            )
+                            .foregroundStyle(Palette.blue)
+                        }
+                        .frame(height: max(170, CGFloat(counts.count) * 42))
+                        .accessibilityLabel("Saved entries by event type")
+                        Text(counts.map { "\($0.kind.title(languageCode: languageCode)): \($0.count)" }.joined(separator: ", "))
+                            .font(.footnote)
+                    }
+                }
+
+                LazyVGrid(columns: usesSingleColumn
+                    ? [GridItem(.flexible())]
+                    : [GridItem(.adaptive(minimum: 132), spacing: 12)], spacing: 12) {
+                    MetricTile(title: NativeStrings.text("Confirmed", languageCode: languageCode), value: snapshot.confirmedCount, symbol: "checkmark.circle")
+                    MetricTile(title: NativeStrings.text("Needs review", languageCode: languageCode), value: snapshot.pendingReviewCount, symbol: "exclamationmark.circle")
+                    MetricTile(title: NativeStrings.text("Falls recorded", languageCode: languageCode), value: snapshot.fallCount, symbol: Observation.Kind.fall.symbolName)
+                    MetricTile(title: NativeStrings.text("Near-falls recorded", languageCode: languageCode), value: snapshot.nearFallCount, symbol: Observation.Kind.nearFall.symbolName)
+                    MetricTile(title: NativeStrings.text("Freezing recorded", languageCode: languageCode), value: snapshot.freezingCount, symbol: Observation.Kind.freezing.symbolName)
+                    MetricTile(title: NativeStrings.text("Tremor recorded", languageCode: languageCode), value: snapshot.tremorCount, symbol: Observation.Kind.tremor.symbolName)
+                }
+
+                analyticsCard(title: NativeStrings.text("Freezing and tremor entries", languageCode: languageCode), symbol: "waveform.path") {
+                    Chart(totals) { bucket in
+                        LineMark(x: .value("Period", bucket.start), y: .value("Freezing entries", bucket.freezing))
+                            .foregroundStyle(by: .value("Entry type", "Freezing"))
+                            .symbol(by: .value("Entry type", "Freezing"))
+                        LineMark(x: .value("Period", bucket.start), y: .value("Tremor entries", bucket.tremor))
+                            .foregroundStyle(by: .value("Entry type", "Tremor"))
+                            .symbol(by: .value("Entry type", "Tremor"))
+                    }
+                    .chartForegroundStyleScale(["Freezing": Palette.blue, "Tremor": Palette.jade])
+                    .chartYAxis { AxisMarks(position: .leading) }
+                    .frame(height: 200)
+                    Text(totals.map {
+                        "\($0.start.formatted(date: .abbreviated, time: .omitted)): freezing \($0.freezing), tremor \($0.tremor)"
+                    }.joined(separator: ". "))
+                        .font(.footnote)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text("Counts show entries saved, not symptom frequency or severity.")
+                        .font(.footnote)
+                }
+
+                analyticsCard(title: NativeStrings.text("Time of day entries were recorded", languageCode: languageCode), symbol: "clock") {
+                    Chart(snapshot.hourlyCounts) { hour in
+                        BarMark(x: .value("Hour", hour.hour), y: .value("Saved entries", hour.count))
+                            .foregroundStyle(Palette.blue)
+                    }
+                    .chartXAxis {
+                        AxisMarks(values: .stride(by: 4)) { value in
+                            AxisValueLabel {
+                                if let hour = value.as(Int.self) { Text(String(format: "%02d:00", hour)) }
+                            }
+                        }
+                    }
+                    .chartYAxis { AxisMarks(position: .leading) }
+                    .frame(height: 200)
+                    Text(hourlySummary)
+                        .font(.footnote)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                analyticsCard(title: NativeStrings.text("Source breakdown", languageCode: languageCode), symbol: "square.stack.3d.up") {
+                    ForEach(snapshot.sourceCounts) { source in
+                        HStack {
+                            Text(NativeStrings.text(source.source.analyticsLabel, languageCode: languageCode))
+                            Spacer(minLength: 12)
+                            Text("\(source.count)")
+                                .font(.body.weight(.semibold).monospacedDigit())
+                                .accessibilityLabel("\(source.count)")
+                        }
+                        .font(.callout)
+                    }
+                }
+
+                analyticsCard(title: NativeStrings.text("Fall and near-fall entries", languageCode: languageCode), symbol: "figure.fall") {
+                    if snapshot.fallHistory.isEmpty {
+                        Text(NativeStrings.text("No fall or near-fall entries were saved in this period.", languageCode: languageCode))
+                            .font(.callout)
+                    } else {
+                        ForEach(snapshot.fallHistory.prefix(5)) { entry in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Label(entry.kind.title(), systemImage: entry.kind.symbolName)
+                                    .font(.callout.weight(.semibold))
+                                Text("\(historyTimeLabel(entry)) · \(NativeStrings.text(entry.source.analyticsLabel, languageCode: languageCode))")
+                                    .font(.footnote)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+                }
+
+                Text(NativeStrings.text("Descriptive counts of entries saved in PD Bridge. These do not measure disease progression or predict what may happen.", languageCode: languageCode))
+                    .font(.footnote)
+                Text(NativeStrings.text("Entries are grouped by the time they were saved in PD Bridge. Imported records may also have a separate occurrence time. A zero count means no entries were recorded in this app for the selected period.", languageCode: languageCode))
+                    .font(.footnote)
+            }
+            .foregroundColor(Palette.navy)
+            .padding(20)
+            .frame(maxWidth: 680)
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, dynamicTypeSize.isAccessibilitySize ? 176 : 64)
+        }
+        .accessibilityIdentifier("insights.scrollView")
+        .background(Palette.page)
+        .navigationTitle(NativeStrings.text("Insights", languageCode: languageCode))
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func analyticsCard<Content: View>(
+        title: String,
+        symbol: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Label(title, systemImage: symbol)
+                .font(.title3.bold())
+                .accessibilityAddTraits(.isHeader)
+            content()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Palette.chartSurface)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    private func historyTimeLabel(_ entry: ObservationAnalyticsService.FallRecord) -> String {
+        let occurrence = entry.occurredAt.formatted(date: .abbreviated, time: .shortened)
+        let recorded = entry.recordedAt.formatted(date: .abbreviated, time: .shortened)
+        guard entry.source != .manual else { return "Recorded in PD Bridge: \(recorded)" }
+        guard entry.recordedAt != entry.occurredAt else { return "Occurred: \(occurrence)" }
+        return "Occurred: \(occurrence) · Recorded in PD Bridge: \(recorded)"
+    }
+}
+
+private struct MetricTile: View {
+    let title: String
+    let value: Int
+    let symbol: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(title, systemImage: symbol)
+                .font(.footnote.weight(.semibold))
+                .fixedSize(horizontal: false, vertical: true)
+            Text("\(value)")
+                .font(.title2.bold().monospacedDigit())
+                .accessibilityLabel("\(title): \(value)")
+        }
+        .frame(maxWidth: .infinity, minHeight: 88, alignment: .leading)
+        .padding(14)
+        .background(Palette.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
 }
 
 private struct HistoryView: View {
@@ -402,21 +873,30 @@ private struct HistoryView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var editing: Observation?
     @State private var query = ""
-    @State private var filter = HistoryFilter.all
+    @State private var statusFilter = ObservationHistoryQuery.Status.all
+    @State private var kindFilter = "all"
+    @State private var sourceFilter = "all"
+    @State private var dateWindow = ObservationHistoryQuery.DateWindow.allTime
+
+    private var selectedKind: Observation.Kind? {
+        kindFilter == "all" ? nil : Observation.Kind(rawValue: kindFilter)
+    }
+
+    private var selectedSource: Observation.Origin? {
+        sourceFilter == "all" ? nil : Observation.Origin(rawValue: sourceFilter)
+    }
 
     private var filteredEntries: [Observation] {
-        model.observations.filter { item in
-            let matchesFilter = filter == .all ||
-                (filter == .needsReview && item.confirmation == .pendingReview) ||
-                (filter == .confirmed && item.confirmation == .userConfirmed)
-            let matchesQuery = ObservationSearch.matches(
-                item,
-                query: query,
-                kindLabel: item.kind.title(languageCode: languageCode),
-                sourceLabel: item.origin.sourceLabel
-            )
-            return matchesFilter && matchesQuery
-        }
+        ObservationHistoryQuery.filter(
+            model.observations,
+            query: query,
+            status: statusFilter,
+            kind: selectedKind,
+            source: selectedSource,
+            dateWindow: dateWindow,
+            kindLabel: { $0.title(languageCode: languageCode) },
+            sourceLabel: { $0.analyticsLabel }
+        )
     }
 
     var body: some View {
@@ -443,15 +923,49 @@ private struct HistoryView: View {
                     .frame(minHeight: 56)
                     .accessibilityLabel("Search history entries")
                     .accessibilityHint("Searches current and earlier wording, event type, and source.")
-                Picker("History filter", selection: $filter) {
-                    ForEach(HistoryFilter.allCases, id: \.self) { option in
+                Picker("History review status", selection: $statusFilter) {
+                    ForEach(ObservationHistoryQuery.Status.allCases) { option in
                         Text(option.title(languageCode: languageCode)).tag(option)
                     }
                 }
                 .pickerStyle(.segmented)
                 .frame(minHeight: 56)
-                .accessibilityLabel("Filter history")
-                .accessibilityValue(filter.title(languageCode: languageCode))
+                .accessibilityLabel("Filter by review status")
+                .accessibilityValue(statusFilter.title(languageCode: languageCode))
+
+                LazyVGrid(columns: dynamicTypeSize.isAccessibilitySize
+                    ? [GridItem(.flexible())]
+                    : [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 8) {
+                    Picker("Date range", selection: $dateWindow) {
+                        Text(NativeStrings.text("All time", languageCode: languageCode)).tag(ObservationHistoryQuery.DateWindow.allTime)
+                        Text(NativeStrings.text("Last 7 days", languageCode: languageCode)).tag(ObservationHistoryQuery.DateWindow.sevenDays)
+                        Text(NativeStrings.text("Last 30 days", languageCode: languageCode)).tag(ObservationHistoryQuery.DateWindow.thirtyDays)
+                        Text(NativeStrings.text("Last 90 days", languageCode: languageCode)).tag(ObservationHistoryQuery.DateWindow.ninetyDays)
+                    }
+                    .pickerStyle(.menu)
+                    .frame(maxWidth: .infinity, minHeight: 56)
+                    .accessibilityIdentifier("history.dateWindow")
+
+                    Picker("Event type", selection: $kindFilter) {
+                        Text(NativeStrings.text("All types", languageCode: languageCode)).tag("all")
+                        ForEach(Observation.Kind.allCases, id: \.rawValue) { kind in
+                            Text(kind.title(languageCode: languageCode)).tag(kind.rawValue)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .frame(maxWidth: .infinity, minHeight: 56)
+                    .accessibilityIdentifier("history.kindFilter")
+
+                    Picker("Entry source", selection: $sourceFilter) {
+                        Text(NativeStrings.text("All sources", languageCode: languageCode)).tag("all")
+                        ForEach(Observation.Origin.allCases, id: \.rawValue) { source in
+                            Text(source.analyticsLabel).tag(source.rawValue)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .frame(maxWidth: .infinity, minHeight: 56)
+                    .accessibilityIdentifier("history.sourceFilter")
+                }
                 if model.observations.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
                         Label("No entries yet", systemImage: "tray")
@@ -471,10 +985,23 @@ private struct HistoryView: View {
                         .background(Palette.surface)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
-                ForEach(filteredEntries) { item in
+                ForEach(Array(filteredEntries.enumerated()), id: \.element.id) { index, item in
+                    if index == 0 || Calendar.current.dateInterval(of: .weekOfYear, for: filteredEntries[index - 1].recordedAt)?.start != Calendar.current.dateInterval(of: .weekOfYear, for: item.recordedAt)?.start {
+                        Text("Week of \((Calendar.current.dateInterval(of: .weekOfYear, for: item.recordedAt)?.start ?? item.recordedAt).formatted(.dateTime.month(.abbreviated).day()))")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                            .padding(.horizontal, 14)
+                            .background(Palette.sage)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .accessibilityAddTraits(.isHeader)
+                    }
+                    HStack(alignment: .top, spacing: 10) {
+                    HistoryTimelineMarker(isLast: index == filteredEntries.count - 1)
                     VStack(alignment: .leading, spacing: 12) {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(item.kind.title(languageCode: languageCode)).font(.title3.bold())
+                            Label(item.kind.title(languageCode: languageCode), systemImage: item.kind.symbolName)
+                                .font(.title3.bold())
+                                .accessibilityAddTraits(.isHeader)
                             Text(ObservationTimeLabels.primaryDisplay(for: item))
                                 .font(.caption)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -491,7 +1018,7 @@ private struct HistoryView: View {
                                 .font(.body)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        Text(item.origin.sourceLabel)
+                        Text(NativeStrings.text(item.origin.sourceLabel, languageCode: languageCode))
                             .font(.footnote)
                         if item.savedText != item.originalText {
                             Label("Edited · original wording preserved", systemImage: "pencil")
@@ -556,6 +1083,7 @@ private struct HistoryView: View {
                     .background(Palette.surface)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .overlay(RoundedRectangle(cornerRadius: 16).stroke(Palette.line))
+                    }
                 }
             }
             .padding(20)
@@ -572,6 +1100,28 @@ private struct HistoryView: View {
             editing = nil
         }
         .sheet(item: $editing) { NoteEditor(item: $0) }
+    }
+}
+
+private struct HistoryTimelineMarker: View {
+    let isLast: Bool
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Circle()
+                .fill(Palette.teal)
+                .frame(width: 14, height: 14)
+                .padding(.top, 21)
+            if !isLast {
+                Rectangle()
+                    .fill(Palette.line)
+                    .frame(width: 2)
+                    .frame(maxHeight: .infinity)
+            }
+        }
+        .frame(width: 18)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .accessibilityHidden(true)
     }
 }
 
@@ -931,28 +1481,53 @@ private struct AppointmentView: View {
     @AppStorage("pdbridge.comfortMode") private var comfortMode = false
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let onOpenHistory: () -> Void
+    @State private var reportPreviewExpanded = false
+    @State private var reportPeriod = VisitPeriod.fourWeeks
+
+    private enum VisitPeriod: String, CaseIterable, Identifiable {
+        case fourWeeks, allTime
+        var id: String { rawValue }
+        var title: String { self == .fourWeeks ? "Last 4 weeks" : "All selected dates" }
+    }
 
     private var usesSingleColumn: Bool { comfortMode || dynamicTypeSize.isAccessibilitySize }
 
     var body: some View {
+        let confirmedEntries = model.observations.filter { $0.confirmation == .userConfirmed }
+        let selectedEntries = AppointmentReport.selectedEntries(from: model.observations)
+        let periodStart = Calendar.current.date(byAdding: .day, value: -27, to: Calendar.current.startOfDay(for: Date())) ?? Date.distantPast
+        let entries = reportPeriod == .allTime ? selectedEntries : selectedEntries.filter { $0.recordedAt >= periodStart }
+        let availableEntries = confirmedEntries.filter {
+            !$0.includeInAppointment && (reportPeriod == .allTime || $0.recordedAt >= periodStart)
+        }
+        let reportText = factualReportText(entries, languageCode: languageCode)
+        let occurrenceDates = entries.map(\.occurredAt).sorted()
+        let categoryCounts = Observation.Kind.allCases.map { kind in
+            AppointmentKindCount(kind: kind, count: entries.filter { $0.kind == kind }.count)
+        }.filter { $0.count > 0 }
+
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 DemoBanner()
                 if let notice = model.notice { NoticeBanner(message: notice, tone: model.noticeTone) }
-                let confirmedEntries = model.observations.filter { $0.confirmation == .userConfirmed }
-                let entries = AppointmentReport.selectedEntries(from: model.observations)
-                let availableEntries = confirmedEntries.filter { !$0.includeInAppointment }
-                Text("Appointment preparation")
+                Text("Prepare for your visit")
                     .font(.largeTitle.bold())
+                    .foregroundColor(Palette.navy)
                     .accessibilityAddTraits(.isHeader)
-                Button {
-                    printFactualReport(entries, languageCode: languageCode)
-                } label: {
-                    Label(NativeStrings.text("Print or save report", languageCode: languageCode), systemImage: "printer")
+                Text("A simple summary of selected records to discuss with your care team.")
+                    .font(.body)
+                Picker("Reporting period", selection: $reportPeriod) {
+                    ForEach(VisitPeriod.allCases) { period in
+                        Text(period.title).tag(period)
+                    }
                 }
-                .buttonStyle(ActionStyle(prominent: true))
-                .disabled(entries.isEmpty || model.storageError != nil)
-
+                .pickerStyle(.menu)
+                .frame(minHeight: 56)
+                .accessibilityIdentifier("appointment.period")
+                if selectedEntries.count > entries.count {
+                    Text("\(selectedEntries.count - entries.count) selected entry or entries are outside this reporting period. Choose All selected dates to include them.")
+                        .font(.footnote)
+                }
                 if entries.isEmpty {
                     VStack(alignment: .leading, spacing: 12) {
                         Label(confirmedEntries.isEmpty ? "No confirmed entries yet" : "Nothing selected for this appointment yet",
@@ -973,15 +1548,94 @@ private struct AppointmentView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
 
-                Text("Selected entry counts")
+                Text("Your selected observations")
                     .font(.title2.bold())
+                    .foregroundColor(Palette.navy)
                 LazyVGrid(columns: usesSingleColumn
                     ? [GridItem(.flexible())]
                     : [GridItem(.adaptive(minimum: 126), spacing: 12)], spacing: 12) {
                     CountTile(title: "Selected entries", count: entries.count)
-                    ForEach([Observation.Kind.fall, .nearFall, .freezing, .movement, .note], id: \.rawValue) { kind in
+                    ForEach([Observation.Kind.fall, .nearFall, .freezing, .tremor, .movement, .otherSymptom, .note].filter { kind in
+                        entries.contains { $0.kind == kind }
+                    }, id: \.rawValue) { kind in
                         CountTile(title: kind.title(languageCode: languageCode), count: entries.filter { $0.kind == kind }.count)
                     }
+                }
+                Button {
+                    reportPreviewExpanded = true
+                } label: {
+                    Label("Review report", systemImage: "doc.text")
+                }
+                .buttonStyle(ActionStyle(prominent: true, intelligence: true))
+                .disabled(entries.isEmpty || model.storageError != nil)
+                .accessibilityIdentifier("appointment.reviewReport")
+                Button {
+                    printFactualReport(reportText)
+                } label: {
+                    Label(NativeStrings.text("Print or save report", languageCode: languageCode), systemImage: "printer")
+                }
+                .buttonStyle(ActionStyle())
+                .disabled(entries.isEmpty || model.storageError != nil)
+                if !entries.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Label("Selected entries by type", systemImage: "chart.bar")
+                            .font(.title3.bold())
+                            .accessibilityAddTraits(.isHeader)
+                        Chart(categoryCounts) { category in
+                            BarMark(
+                                x: .value("Selected entries", category.count),
+                                y: .value("Event type", category.kind.title(languageCode: languageCode))
+                            )
+                            .foregroundStyle(Palette.teal)
+                            .annotation(position: .trailing) {
+                                Text("\(category.count)").font(.caption.weight(.semibold))
+                            }
+                        }
+                        .chartXAxis { AxisMarks(position: .bottom) }
+                        .frame(height: max(120, CGFloat(categoryCounts.count) * 36))
+                        .accessibilityLabel("Bar chart of the selected appointment entries by event type")
+                        Text(categoryCounts.map {
+                            "\($0.kind.title(languageCode: languageCode)): \($0.count)"
+                        }.joined(separator: ", "))
+                            .font(.footnote)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityLabel("Selected entry counts. \(categoryCounts.map { "\($0.kind.title(languageCode: languageCode)): \($0.count)" }.joined(separator: ". "))")
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(16)
+                    .background(Palette.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+
+                    if let first = occurrenceDates.first, let last = occurrenceDates.last {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Occurrence dates in this report")
+                                .font(.headline)
+                            Text(first == last
+                                ? first.formatted(date: .long, time: .shortened)
+                                : "\(first.formatted(date: .abbreviated, time: .shortened)) – \(last.formatted(date: .abbreviated, time: .shortened))")
+                                .font(.body)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Text("Each entry also shows its saved time and source below.")
+                                .font(.footnote)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(16)
+                        .background(Palette.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                    }
+
+                    DisclosureGroup("Preview printable report", isExpanded: $reportPreviewExpanded) {
+                        Text(verbatim: reportText)
+                            .font(.body)
+                            .textSelection(.enabled)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityIdentifier("appointment.reportPreviewText")
+                            .padding(.top, 8)
+                    }
+                    .font(.headline)
+                    .padding(16)
+                    .background(Palette.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 ForEach(entries) { item in
                     VStack(alignment: .leading, spacing: 8) {
@@ -991,7 +1645,7 @@ private struct AppointmentView: View {
                         } else {
                             Text(verbatim: item.savedText)
                         }
-                        Text("\(ObservationTimeLabels.primaryDisplay(for: item)) · \(item.origin.sourceLabel)")
+                        Text("\(ObservationTimeLabels.primaryDisplay(for: item)) · \(NativeStrings.text(item.origin.sourceLabel, languageCode: languageCode))")
                             .font(.footnote)
                         if let recorded = ObservationTimeLabels.secondaryRecordedDisplay(for: item) {
                             Text(recorded)
@@ -1033,7 +1687,7 @@ private struct AppointmentView: View {
                         } else {
                             Text(verbatim: item.savedText)
                         }
-                            Text("\(ObservationTimeLabels.primaryDisplay(for: item)) · \(item.origin.sourceLabel)")
+                            Text("\(ObservationTimeLabels.primaryDisplay(for: item)) · \(NativeStrings.text(item.origin.sourceLabel, languageCode: languageCode))")
                                 .font(.footnote)
                             if let recorded = ObservationTimeLabels.secondaryRecordedDisplay(for: item) {
                                 Text(recorded)
@@ -1067,19 +1721,22 @@ private struct AppointmentView: View {
         }
         .accessibilityIdentifier("appointment.scrollView")
         .background(Palette.page)
-        .navigationTitle(NativeStrings.text("Appointment", languageCode: languageCode))
+        .navigationTitle(NativeStrings.text("Visits", languageCode: languageCode))
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    private func printFactualReport(_ entries: [Observation], languageCode: String) {
-        let text = AppointmentReport.text(
+    private func factualReportText(_ entries: [Observation], languageCode: String) -> String {
+        AppointmentReport.text(
             from: entries,
             kindLabel: { $0.title(languageCode: languageCode) },
             sourceLabel: { $0.sourceLabel },
             dateLabel: { $0.formatted(date: .abbreviated, time: .shortened) }
         )
-        guard !text.isEmpty else { return }
-        let formatter = UISimpleTextPrintFormatter(text: text)
+    }
+
+    private func printFactualReport(_ reportText: String) {
+        guard !reportText.isEmpty else { return }
+        let formatter = UISimpleTextPrintFormatter(text: reportText)
         let controller = UIPrintInteractionController.shared
         let info = UIPrintInfo(dictionary: nil)
         info.jobName = "PD Bridge selected observations"
@@ -1117,11 +1774,13 @@ private struct AppointmentView: View {
     }
 }
 
-private enum HistoryFilter: String, CaseIterable {
-    case all
-    case needsReview
-    case confirmed
+private struct AppointmentKindCount: Identifiable {
+    let kind: Observation.Kind
+    let count: Int
+    var id: String { kind.rawValue }
+}
 
+private extension ObservationHistoryQuery.Status {
     func title(languageCode: String) -> String {
         switch self {
         case .all: return NativeStrings.text("All", languageCode: languageCode)
@@ -1629,13 +2288,33 @@ private extension Observation.Kind {
     func title(languageCode: String = NativeLanguage.english.rawValue) -> String {
         NativeStrings.observationKindTitle(self, languageCode: languageCode)
     }
+
+    var symbolName: String {
+        switch self {
+        case .note: return "text.alignleft"
+        case .fall: return "figure.fall"
+        case .nearFall: return "figure.run"
+        case .freezing: return "snowflake"
+        case .tremor: return "waveform.path"
+        case .movement: return "figure.walk"
+        case .otherSymptom: return "ellipsis"
+        }
+    }
 }
 
 private extension Observation.Origin {
     var sourceLabel: String {
         switch self {
         case .manual: return "Entered on this iPhone"
-        case .appleHealth: return "Apple Health historical record"
+        case .appleHealth: return "Historical imported record"
+        case .fictionalWatch: return "Fictional Apple Watch test"
+        }
+    }
+
+    var analyticsLabel: String {
+        switch self {
+        case .manual: return "Entered on this iPhone"
+        case .appleHealth: return "Historical imported record"
         case .fictionalWatch: return "Fictional Apple Watch test"
         }
     }

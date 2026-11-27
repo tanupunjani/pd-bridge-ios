@@ -85,6 +85,153 @@ let oldObservationJSON = """
 """
 let oldObservation = try JSONDecoder().decode(Observation.self, from: Data(oldObservationJSON.utf8))
 assert(oldObservation.voiceNote == nil, "Archives created before voice notes must still open")
+let otherSymptomVault = MemoryVault()
+let otherSymptomService = try ObservationService(vault: otherSymptomVault)
+let otherSymptomID = try otherSymptomService.addManual(
+    kind: .otherSymptom, text: "Fictional: another observation.", at: now
+)
+try otherSymptomService.setIncluded(otherSymptomID, included: true)
+assert(otherSymptomService.observations.first?.id == otherSymptomID)
+let restoredOtherSymptom = try JSONDecoder().decode(
+    Observation.self, from: JSONEncoder().encode(otherSymptomService.observations[0])
+)
+assert(restoredOtherSymptom.kind == .otherSymptom)
+assert(ObservationAnalyticsService.snapshot(
+    observations: [restoredOtherSymptom],
+    in: DateInterval(start: now.addingTimeInterval(-1), end: now.addingTimeInterval(1))
+).count(for: .otherSymptom) == 1)
+assert(AppointmentReport.text(
+    from: [restoredOtherSymptom], kindLabel: { $0.rawValue },
+    sourceLabel: { $0.rawValue }, dateLabel: { _ in "fictional time" }
+).contains("otherSymptom"))
+
+func analyticsObservation(
+    id: UUID = UUID(),
+    kind: Observation.Kind,
+    occurredAt: Date,
+    recordedAt: Date,
+    origin: Observation.Origin = .manual,
+    confirmation: Observation.Confirmation = .userConfirmed
+) -> Observation {
+    Observation(id: id, kind: kind, originalText: "Fictional analytics fixture",
+                savedText: "Fictional analytics fixture", occurredAt: occurredAt,
+                recordedAt: recordedAt, origin: origin, sourceRecordID: nil,
+                confirmation: confirmation, previousWording: [])
+}
+
+var analyticsCalendar = Calendar(identifier: .gregorian)
+analyticsCalendar.timeZone = TimeZone(identifier: "America/Toronto")!
+let analyticsStart = analyticsCalendar.date(from: DateComponents(year: 2026, month: 3, day: 8, hour: 0))!
+let analyticsEnd = analyticsCalendar.date(from: DateComponents(year: 2026, month: 3, day: 10, hour: 0))!
+let analyticsRange = DateInterval(start: analyticsStart, end: analyticsEnd)
+let fallRecordedAt = analyticsCalendar.date(from: DateComponents(year: 2026, month: 3, day: 8, hour: 1, minute: 30))!
+let tremorRecordedAt = analyticsCalendar.date(from: DateComponents(year: 2026, month: 3, day: 8, hour: 3, minute: 30))!
+let nearFallRecordedAt = analyticsCalendar.date(from: DateComponents(year: 2026, month: 3, day: 8, hour: 18))!
+let fictionalFall = analyticsObservation(kind: .fall,
+    occurredAt: analyticsStart.addingTimeInterval(-86_400),
+    recordedAt: fallRecordedAt)
+let fictionalTremor = analyticsObservation(kind: .tremor,
+    occurredAt: analyticsStart.addingTimeInterval(3 * 3_600),
+    recordedAt: tremorRecordedAt)
+let fictionalPendingNearFall = analyticsObservation(kind: .nearFall,
+    occurredAt: analyticsStart.addingTimeInterval(17 * 3_600),
+    recordedAt: nearFallRecordedAt,
+    origin: .fictionalWatch, confirmation: .pendingReview)
+let outsideAtEnd = analyticsObservation(kind: .nearFall, occurredAt: analyticsEnd, recordedAt: analyticsEnd,
+                                        origin: .fictionalWatch)
+let exactlyAtStart = analyticsObservation(kind: .movement, occurredAt: analyticsStart, recordedAt: analyticsStart)
+let outsideAtStart = analyticsObservation(kind: .note,
+    occurredAt: analyticsStart.addingTimeInterval(-1), recordedAt: analyticsStart.addingTimeInterval(-1))
+var correctedAnalyticsFall = fictionalFall
+correctedAnalyticsFall.savedText = "Fictional corrected wording"
+let analyticsEntries = [fictionalFall, correctedAnalyticsFall, fictionalTremor,
+                        fictionalPendingNearFall, outsideAtEnd, exactlyAtStart, outsideAtStart]
+let analyticsSnapshot = ObservationAnalyticsService.snapshot(
+    observations: analyticsEntries, in: analyticsRange, calendar: analyticsCalendar
+)
+assert(analyticsSnapshot.uniqueEntryCount == 4, "Analytics must use recorded time and count each ID once")
+assert(analyticsSnapshot.confirmedCount == 3 && analyticsSnapshot.pendingReviewCount == 1)
+assert(analyticsSnapshot.fallCount == 1 && analyticsSnapshot.nearFallCount == 1)
+assert(analyticsSnapshot.tremorCount == 1 && analyticsSnapshot.freezingCount == 0)
+assert(analyticsSnapshot.sourceCounts.first(where: { $0.source == .manual })?.count == 3)
+assert(analyticsSnapshot.sourceCounts.first(where: { $0.source == .fictionalWatch })?.count == 1)
+assert(analyticsSnapshot.hourlyCounts.count == 24)
+assert(analyticsSnapshot.hourlyCounts[0].count == 1)
+assert(analyticsSnapshot.hourlyCounts[1].count == 1 && analyticsSnapshot.hourlyCounts[3].count == 1)
+assert(analyticsSnapshot.hourlyCounts[18].count == 1)
+assert(analyticsSnapshot.dailyTotals.map(\.total) == [4, 0], "Daily buckets must respect the local DST calendar")
+assert(analyticsSnapshot.weeklyTotals.map(\.total) == [4] && analyticsSnapshot.monthlyTotals.map(\.total) == [4])
+assert(analyticsSnapshot.dailyTotals[0].tremor == 1 && analyticsSnapshot.dailyTotals[0].freezing == 0)
+assert(analyticsSnapshot.fallHistory.map(\.kind) == [.nearFall, .fall])
+let analyticsVault = MemoryVault()
+analyticsVault.archive = ObservationArchive(observations: analyticsEntries, processedSourceKeys: [])
+let analyticsService = try ObservationService(vault: analyticsVault)
+let deletedAnalyticsTremor = try analyticsService.remove(fictionalTremor.id)
+let afterAnalyticsDelete = ObservationAnalyticsService.snapshot(
+    observations: analyticsService.observations, in: analyticsRange, calendar: analyticsCalendar
+)
+assert(afterAnalyticsDelete.tremorCount == 0 && afterAnalyticsDelete.uniqueEntryCount == 3)
+try analyticsService.undoRemoval(deletedAnalyticsTremor)
+assert(ObservationAnalyticsService.snapshot(
+    observations: analyticsService.observations, in: analyticsRange, calendar: analyticsCalendar
+).tremorCount == 1, "Undo must restore the original analytics counts")
+
+let historyNow = analyticsCalendar.date(from: DateComponents(year: 2026, month: 3, day: 10, hour: 12))!
+let historyRecent = analyticsObservation(kind: .tremor,
+    occurredAt: historyNow.addingTimeInterval(-5 * 86_400),
+    recordedAt: historyNow.addingTimeInterval(-2 * 3_600), origin: .manual)
+let historyFuture = analyticsObservation(kind: .movement,
+    occurredAt: historyNow.addingTimeInterval(86_400),
+    recordedAt: historyNow.addingTimeInterval(86_400), origin: .manual)
+var historyCorrected = analyticsObservation(kind: .fall,
+    occurredAt: historyNow.addingTimeInterval(-20 * 86_400),
+    recordedAt: historyNow.addingTimeInterval(-8 * 86_400), origin: .fictionalWatch,
+    confirmation: .pendingReview)
+historyCorrected.savedText = "Fictional corrected detail"
+historyCorrected.previousWording = ["Fictional original detail"]
+let historyResults = ObservationHistoryQuery.filter(
+    [historyCorrected, historyRecent, historyFuture],
+    status: .all,
+    dateWindow: .sevenDays,
+    now: historyNow,
+    calendar: analyticsCalendar
+)
+assert(historyResults.map(\.id) == [historyRecent.id],
+       "History date ranges use the recorded time, not an older occurrence time")
+let historySourceResults = ObservationHistoryQuery.filter(
+    [historyCorrected, historyRecent, historyFuture], query: "original detail", status: .needsReview,
+    kind: .fall, source: .fictionalWatch, dateWindow: .allTime,
+    now: historyNow, calendar: analyticsCalendar
+)
+assert(historySourceResults.map(\.id) == [historyCorrected.id],
+       "History search covers preserved wording and filters by status, type, and source")
+assert(ObservationHistoryQuery.filter([historyCorrected, historyRecent, historyFuture], kind: .freezing,
+    now: historyNow, calendar: analyticsCalendar).isEmpty,
+    "History returns a real empty result for categories with no entries")
+assert(ObservationHistoryQuery.filter([historyCorrected, historyRecent, historyFuture], dateWindow: .allTime,
+    now: historyNow, calendar: analyticsCalendar).map(\.id) == [historyRecent.id, historyCorrected.id],
+    "History excludes future record timestamps and sorts newest saved entry first")
+
+let crossMonthStart = analyticsCalendar.date(from: DateComponents(year: 2026, month: 10, day: 26))!
+let crossMonthEnd = analyticsCalendar.date(from: DateComponents(year: 2026, month: 11, day: 3))!
+let crossMonth = ObservationAnalyticsService.snapshot(observations: [
+    analyticsObservation(kind: .freezing, occurredAt: crossMonthStart,
+                         recordedAt: crossMonthStart.addingTimeInterval(4 * 86_400)),
+    analyticsObservation(kind: .note, occurredAt: crossMonthEnd,
+                         recordedAt: crossMonthEnd.addingTimeInterval(-86_400))
+], in: DateInterval(start: crossMonthStart, end: crossMonthEnd), calendar: analyticsCalendar)
+assert(crossMonth.weeklyTotals.map(\.total) == [1, 1], "Weekly buckets must follow the local calendar")
+assert(crossMonth.monthlyTotals.map(\.total) == [1, 1], "Monthly buckets must remain separate")
+
+let tremorRoundTrip = try JSONDecoder().decode(Observation.self,
+    from: JSONEncoder().encode(analyticsObservation(kind: .tremor, occurredAt: now, recordedAt: now)))
+assert(tremorRoundTrip.kind == .tremor, "Tremor observations must round-trip without migration")
+assert(oldObservation.kind == .note, "Older observation archives must remain decodable after adding tremor")
+var reportTremor = tremorRoundTrip
+reportTremor.includeInAppointment = true
+let tremorReport = AppointmentReport.text(from: [reportTremor], kindLabel: { $0.rawValue },
+                                          sourceLabel: { $0.rawValue }, dateLabel: { _ in "fictional date" })
+assert(tremorReport.contains("tremor: 1"), "Appointment counts must include the new tremor kind")
 let reminderTime = LocalReminderSchedule(hour: 7, minute: 5)!
 assert(reminderTime.dateComponents.hour == 7 && reminderTime.dateComponents.minute == 5)
 assert(LocalReminderSchedule(hour: 23, minute: 59) != nil)
@@ -93,7 +240,7 @@ assert(LocalReminderSchedule(hour: 8, minute: 60) == nil)
 assert(NativeStrings.text("Unknown test label", languageCode: "gu") == "Unknown test label")
 assert(NativeStrings.observationKindTitle(.fall, languageCode: "en") == "Fall")
 assert(NativeStrings.observationKindTitle(.nearFall, languageCode: "en") == "Near-fall")
-assert(NativeStrings.observationKindTitle(.movement, languageCode: "en") == "Movement / other")
+assert(NativeStrings.observationKindTitle(.movement, languageCode: "en") == "Movement")
 var scriptedTalk = NativeScriptedTalkDraft()
 assert(scriptedTalk.noteText == nil, "An empty scripted conversation must not create a note")
 scriptedTalk.select(99, for: 0)

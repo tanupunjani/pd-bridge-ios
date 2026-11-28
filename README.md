@@ -27,7 +27,7 @@ The native contract checks are in `native/ios/Tests`; the iPhone-only packaging 
 
 ## Limitations and project history
 
-HealthKit and real-time fall detection remain disabled. The redesigned branch has passed unsigned device-SDK builds and local simulator UI checks, but has not been installed on a physical device. A signed Release archive, App Store Connect disclosures and review, physical-device checks, and appropriate privacy/medical-regulatory review remain necessary before allowing real health observations. WatchConnectivity delivery has not been verified end to end on hardware.
+HealthKit and real-time fall detection remain disabled. The redesigned branch has passed unsigned device-SDK builds and local simulator UI checks. One focused fictional-data appointment-selection test passed on a physical iPhone 14 using an isolated UI-test store; this does not establish broad physical QA or ordinary-vault behavior while locked. A signed Release archive, App Store Connect disclosures and review, full physical-device checks, and appropriate privacy/medical-regulatory review remain necessary before allowing real health observations. WatchConnectivity delivery has not been verified end to end on hardware.
 
 See the [engineering case study](https://tanupunjani.github.io/pd-bridge-case-study/), [Privacy Policy](https://tanupunjani.github.io/pd-bridge-case-study/privacy.html), and [support page](https://tanupunjani.github.io/pd-bridge-case-study/support.html).
 

@@ -871,6 +871,7 @@ private struct HistoryView: View {
     @EnvironmentObject private var model: DiaryModel
     @AppStorage("pdbridge.language") private var languageCode = NativeLanguage.english.rawValue
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @FocusState private var searchFocused: Bool
     @State private var editing: Observation?
     @State private var query = ""
     @State private var statusFilter = ObservationHistoryQuery.Status.all
@@ -919,6 +920,9 @@ private struct HistoryView: View {
                     prompt: Text(NativeStrings.text("Search entries", languageCode: languageCode))
                         .foregroundColor(Palette.ink)
                 )
+                    .focused($searchFocused)
+                    .submitLabel(.search)
+                    .onSubmit { searchFocused = false }
                     .textFieldStyle(.roundedBorder)
                     .frame(minHeight: 56)
                     .accessibilityLabel("Search history entries")

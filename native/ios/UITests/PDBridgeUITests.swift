@@ -42,7 +42,7 @@ final class PDBridgeUITests: XCTestCase {
         let include = app.switches.matching(NSPredicate(
             format: "identifier CONTAINS 'history.includeInAppointment'"
         )).firstMatch
-        scrollUntilHittable(include, in: app.scrollViews.firstMatch)
+        scrollUntilFullyVisible(include, in: app.scrollViews.firstMatch, above: app.buttons["tab.History"])
         include.tap()
         XCTAssertEqual(include.value as? String, "Included in appointment")
         // Capture settled screens and verify the selection survives app restart.
@@ -118,7 +118,11 @@ final class PDBridgeUITests: XCTestCase {
             NSPredicate(format: "identifier CONTAINS 'history.includeInAppointment'")
         ).firstMatch
         XCTAssertTrue(include.waitForExistence(timeout: 5))
+        scrollUntilFullyVisible(include, in: app.scrollViews.firstMatch, above: app.buttons["tab.History"])
+        XCTAssertEqual(include.value as? String, "Set aside from appointment")
         include.tap()
+        XCTAssertTrue(include.waitForExistence(timeout: 5))
+        XCTAssertEqual(include.value as? String, "Included in appointment")
         app.buttons["tab.Visits"].tap()
         XCTAssertTrue(app.staticTexts["Selected entries: 1"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Fictional fall test event."].exists)
@@ -145,8 +149,12 @@ final class PDBridgeUITests: XCTestCase {
         search.typeText("kitchen doorway")
         XCTAssertTrue(app.staticTexts[original].exists)
         search.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: "kitchen doorway".count))
+        search.typeText(XCUIKeyboardKey.return.rawValue)
+        XCTAssertFalse(app.keyboards.firstMatch.exists, "Submitting History search should dismiss the keyboard before editing.")
 
-        app.buttons["Edit"].firstMatch.tap()
+        let edit = app.buttons["Edit"].firstMatch
+        scrollUntilFullyVisible(edit, in: app.scrollViews.firstMatch, above: app.buttons["tab.History"])
+        edit.tap()
         let correctionEditor = noteEditor()
         XCTAssertTrue(correctionEditor.waitForExistence(timeout: 5))
         correctionEditor.tap()
@@ -191,7 +199,7 @@ final class PDBridgeUITests: XCTestCase {
         let demonstration = "Example: paused briefly while walking through a doorway."
         attachScreen("release-home")
         app.buttons["Write a note"].tap()
-        let editor = app.textViews["Note text"]
+        let editor = noteEditor()
         XCTAssertTrue(editor.waitForExistence(timeout: 5))
         editor.tap()
         editor.typeText(demonstration)
@@ -210,10 +218,14 @@ final class PDBridgeUITests: XCTestCase {
 
         app.terminate()
         app = launchApp(testRunID: uiTestRunID)
+        app.buttons["tab.Insights"].tap()
+        XCTAssertTrue(app.buttons["insights.dateRange.week"].waitForExistence(timeout: 5))
+        attachScreen("release-insights")
         app.buttons["tab.Visits"].tap()
         XCTAssertTrue(app.staticTexts["Selected entries: 1"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts[demonstration].exists)
         XCTAssertFalse(app.staticTexts["Added to appointment report."].exists)
+        attachScreen("release-appointment-overview")
         let appointmentScroll = app.scrollViews["appointment.scrollView"]
         XCTAssertTrue(appointmentScroll.waitForExistence(timeout: 5))
         let reportText = appointmentScroll.staticTexts[demonstration]
@@ -221,9 +233,10 @@ final class PDBridgeUITests: XCTestCase {
         scrollUntilFullyVisible(reportText, in: appointmentScroll, above: appointmentTab)
         appointmentScroll.swipeUp(velocity: .slow)
         XCTAssertTrue(reportText.isHittable)
-        attachScreen("release-appointment")
+        attachScreen("release-appointment-detail")
 
         openSettings()
+        attachScreen("release-settings-overview")
         let privacyLink = app.descendants(matching: .any)
             .matching(identifier: "settings.privacyPolicyLink").firstMatch
         XCTAssertTrue(privacyLink.waitForExistence(timeout: 5))
@@ -237,7 +250,7 @@ final class PDBridgeUITests: XCTestCase {
         XCTAssertTrue(privacyLink.isHittable)
         XCTAssertGreaterThanOrEqual(privacyLink.frame.minY, settingsScroll.frame.minY)
         XCTAssertLessThanOrEqual(privacyLink.frame.maxY, settingsScroll.frame.maxY)
-        attachScreen("release-settings")
+        attachScreen("release-settings-privacy")
     }
 
     func testPublishedPrivacyPolicyLink() throws {
@@ -315,7 +328,10 @@ final class PDBridgeUITests: XCTestCase {
             NSPredicate(format: "identifier CONTAINS 'history.includeInAppointment'")
         ).firstMatch
         XCTAssertTrue(include.waitForExistence(timeout: 5))
+        scrollUntilFullyVisible(include, in: app.scrollViews.firstMatch, above: app.buttons["tab.History"])
+        XCTAssertEqual(include.value as? String, "Set aside from appointment")
         include.tap()
+        XCTAssertEqual(include.value as? String, "Included in appointment")
         XCTAssertTrue(app.descendants(matching: .any)
             .matching(identifier: "history.dateWindow").firstMatch.exists)
         XCTAssertTrue(app.descendants(matching: .any)
@@ -347,8 +363,12 @@ final class PDBridgeUITests: XCTestCase {
         let homeScroll = app.scrollViews.firstMatch
         let talk = app.buttons["home.talkDemo"]
         let help = app.buttons["home.help"]
-        scrollUntilFullyVisible(talk, in: homeScroll, above: app.buttons["tab.Track"])
         scrollUntilFullyVisible(help, in: homeScroll, above: app.buttons["tab.Track"])
+        XCTAssertTrue(help.isHittable)
+        // Help is above Talk in the Home scroll flow. Scroll toward each
+        // control in document order so the second assertion does not move the
+        // already-checked Help control farther offscreen.
+        scrollUntilFullyVisible(talk, in: homeScroll, above: app.buttons["tab.Track"])
         XCTAssertTrue(talk.isHittable)
         attachScreen("home-bottom-controls")
         talk.tap()
@@ -420,13 +440,13 @@ final class PDBridgeUITests: XCTestCase {
         app.terminate()
         app = launchApp(accessibilityTextSize: true)
         XCTAssertTrue(app.buttons["Write a note"].waitForExistence(timeout: 15))
-        XCTAssertTrue(app.staticTexts["PD Bridge"].exists)
+        XCTAssertTrue(app.navigationBars["Track"].exists)
         attachScreen("dark-appearance-large-text-home")
         let talk = app.buttons["home.talkDemo"]
         let help = app.buttons["home.help"]
         let nav = app.buttons["tab.Track"]
-        scrollUntilFullyVisible(talk, in: app.scrollViews.firstMatch, above: nav)
         scrollUntilFullyVisible(help, in: app.scrollViews.firstMatch, above: nav)
+        scrollUntilFullyVisible(talk, in: app.scrollViews.firstMatch, above: nav)
         attachScreen("dark-home-bottom-controls")
         let history = app.buttons["home.openHistory"]
         scrollUntilFullyVisible(history, in: app.scrollViews.firstMatch, above: app.buttons["tab.Track"])
@@ -554,7 +574,7 @@ final class PDBridgeUITests: XCTestCase {
         editor.typeText(original)
         XCTAssertEqual(editor.value as? String, original)
         if app.buttons["Hide keyboard"].exists { app.buttons["Hide keyboard"].tap() }
-        app.buttons["محفوظ کریں"].tap()
+        app.scrollViews.buttons["محفوظ کریں"].firstMatch.tap()
 
         openHistory()
         XCTAssertTrue(app.staticTexts[original].waitForExistence(timeout: 5))
@@ -593,8 +613,12 @@ final class PDBridgeUITests: XCTestCase {
         search.typeText(original)
         XCTAssertTrue(app.staticTexts[original].waitForExistence(timeout: 5))
         search.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: original.utf16.count))
+        search.typeText(XCUIKeyboardKey.return.rawValue)
+        XCTAssertFalse(app.keyboards.firstMatch.exists, "Submitting History search should dismiss the keyboard before editing.")
 
-        app.buttons["Edit"].firstMatch.tap()
+        let edit = app.buttons["Edit"].firstMatch
+        scrollUntilFullyVisible(edit, in: app.scrollViews.firstMatch, above: app.buttons["tab.History"])
+        edit.tap()
         let correctionEditor = noteEditor()
         correctionEditor.tap()
         correctionEditor.press(forDuration: 1.0)
@@ -645,7 +669,8 @@ final class PDBridgeUITests: XCTestCase {
 
     private func openHistory() {
         app.buttons["tab.History"].tap()
-        XCTAssertTrue(app.navigationBars["History"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.navigationBars["History"].waitForExistence(timeout: 5)
+            || app.navigationBars["تاریخ"].waitForExistence(timeout: 5))
     }
 
     private func openSettings() {

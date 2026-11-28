@@ -162,7 +162,10 @@ final class PDBridgeUITests: XCTestCase {
         attachScreen("appointment")
         XCTAssertTrue(app.staticTexts["Selected entries: 1"].waitForExistence(timeout: 5))
         app.buttons["Set aside from this appointment"].tap()
-        XCTAssertTrue(app.staticTexts["Selected entries: 0"].waitForExistence(timeout: 5))
+        // The available-entry action and disabled report directly establish
+        // that the item left this appointment; the count tile can be offscreen.
+        XCTAssertTrue(app.buttons["Add to this appointment"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["appointment.reviewReport"].isEnabled)
         app.buttons["Add to this appointment"].tap()
         app.buttons["Print or save report"].tap()
         XCTAssertTrue(app.staticTexts["Report options opened. Choose a destination; nothing is saved yet."].waitForExistence(timeout: 5),
